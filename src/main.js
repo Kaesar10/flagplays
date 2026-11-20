@@ -28,6 +28,7 @@ import { openCatalogEditor, isCatalogOpen, closeCatalogEditor } from './catalog-
 import { initNative, isAndroidApp, isWindowsApp, shareText } from './native.js';
 import { ensureTermsAccepted, viewTerms, isAccepted, openTermsDialog } from './terms.js';
 import { openLegalDialog } from './legal-ui.js';
+import { mountMobileUI, isMobileSheetOpen, closeMobileSheet, closeMobileTools } from './mobile-ui.js';
 import { registerCustomRoutes } from './presets.js';
 
 const $ = (sel) => document.querySelector(sel);
@@ -1168,6 +1169,31 @@ async function boot() {
     e.preventDefault();
     e.stopPropagation();
     openSection(section);
+  });
+
+  // Interfaz del móvil: menú desplegable, tira de jugadas y herramientas flotantes.
+  mountMobileUI({
+    store,
+    actions: {
+      selectPlay: (id) => {
+        store.selectPlay(id);
+        setMode('edit');
+      },
+      newPlay: () => {
+        store.actions.addPlay('offense', { name: 'Jugada nueva' });
+        setMode('edit');
+      },
+      openSection: (id) => openSection(id),
+      action: (id) => {
+        if (id === 'analyze') openAnalysis();
+        else if (id === 'export') exportMenu(document.getElementById('mobileNavBtn'));
+        else if (id === 'inspector') openInspector('ofensiva');
+        else if (id === 'terms') viewTerms();
+        else if (id === 'legal') openLegalDialog();
+      },
+      inspector: (tab) => openInspector(tab),
+      drawer: (which) => openDrawer(which),
+    },
   });
 
   // Términos y condiciones: obligatorios la primera vez que se abre la app

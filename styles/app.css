@@ -2255,6 +2255,8 @@ textarea.input {
   flex-direction: column;
   gap: 12px;
   min-height: 0;
+  min-width: 0;
+  max-width: 100%;
 }
 .legal-tabs {
   display: flex;
@@ -2262,7 +2264,9 @@ textarea.input {
   overflow-x: auto;
   padding-bottom: 2px;
   scrollbar-width: thin;
-  flex: none;
+  /* sin min-width:0 el carrusel de pestañas ensancha el diálogo entero */
+  min-width: 0;
+  width: 100%;
 }
 .legal-tab {
   display: flex;
