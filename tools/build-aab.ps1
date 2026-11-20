@@ -8,6 +8,8 @@
 param(
     [string]$SdkPath = '',
     [string]$JavaHome = '',
+    [int]$VersionCode = 0,
+    [string]$VersionName = '',
     [switch]$Clean
 )
 
@@ -56,6 +58,19 @@ $Manifest = Join-Path $AppMain 'AndroidManifest.xml'
 $ClassesDex = Join-Path $BuildDir 'dex\classes.dex'
 foreach ($f in @($ResDir, $AssetsDir, $Manifest, $ClassesDex)) {
     if (-not (Test-Path $f)) { Fail "Falta $f. Ejecuta antes tools\build-apk.ps1" }
+}
+
+# Play no deja reutilizar un versionCode: se puede subir sin tocar el manifiesto.
+if ($VersionCode -gt 0 -or $VersionName) {
+    $manifestTxt = Get-Content $Manifest -Raw
+    if ($VersionCode -gt 0) {
+        $manifestTxt = [regex]::Replace($manifestTxt, 'android:versionCode="\d+"', ('android:versionCode="{0}"' -f $VersionCode))
+    }
+    if ($VersionName) {
+        $manifestTxt = [regex]::Replace($manifestTxt, 'android:versionName="[^"]+"', ('android:versionName="{0}"' -f $VersionName))
+    }
+    Set-Content -Path $Manifest -Value $manifestTxt -NoNewline
+    Write-Step "versionCode=$VersionCode versionName=$VersionName (manifiesto actualizado)"
 }
 
 New-Item -ItemType Directory -Force -Path $DistDir, $CacheDir | Out-Null

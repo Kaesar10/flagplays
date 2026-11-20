@@ -42,13 +42,13 @@ if (-not $iscc) {
 }
 Write-Host "    ISCC: $iscc"
 
-# El instalador empaqueta el build de Windows, así que debe existir y estar al día.
+# El instalador empaqueta el build de Windows. Se regenera SIEMPRE: si no, la
+# web empaquetada (www/) puede quedarse antigua respecto a src/ y styles/.
+Step "Regenerando la app de Windows (www incluida)"
+& pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'build-win.ps1')
+if ($LASTEXITCODE -ne 0) { Fail "build-win.ps1 ha fallado." }
 $payload = Join-Path $Root 'dist\windows\FlagPlays\FlagPlays.exe'
-if (-not (Test-Path $payload)) {
-    Step "No hay build de Windows; lo genero primero"
-    & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'build-win.ps1')
-    if ($LASTEXITCODE -ne 0) { Fail "build-win.ps1 ha fallado." }
-}
+if (-not (Test-Path $payload)) { Fail "No se ha generado el ejecutable de Windows." }
 
 if ($Clean) {
     Step "Limpiando instaladores anteriores"
