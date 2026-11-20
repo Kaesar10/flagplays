@@ -24,6 +24,12 @@ para copiar y pegar, y el orden de los trámites.
 | Capturas | `store/captura-1-editor.png`, `store/captura-2-animacion.png` (1080×1920) | Ficha de Play → Gráficos → Capturas de teléfono |
 | Política de privacidad | `docs/privacidad.html` | Ficha de Play → Política de privacidad (URL) |
 
+**URL de la política ya publicada** (GitHub Pages):
+
+```
+https://kaesar10.github.io/flagplays/privacidad.html
+```
+
 El `.aab` se regenera con:
 
 ```powershell
