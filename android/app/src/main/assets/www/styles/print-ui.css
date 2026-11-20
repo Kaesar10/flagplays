@@ -626,3 +626,55 @@
     transition: none;
   }
 }
+
+
+/* ============================================================================
+   MUÑEQUERAS COMO SECCIÓN (no ventana flotante)
+   El mismo panel de impresión se monta dentro de .section-overlay ocupando
+   toda la pantalla, igual que Catálogo, Rutas o Árbol.
+   ============================================================================ */
+.pr-embedded {
+  position: static !important;
+  inset: auto !important;
+  z-index: auto !important;
+  display: flex !important;
+  flex: 1 1 auto;
+  align-items: stretch;
+  justify-content: stretch;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0 !important;
+}
+.pr-embedded .pr-overlay {
+  position: static !important;
+  inset: auto !important;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0 !important;
+  background: var(--bg-0);
+  backdrop-filter: none;
+}
+.pr-embedded .pr-panel {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.pr-embedded .pr-head {
+  padding-top: calc(10px + env(safe-area-inset-top, 0px));
+}
+@media (max-width: 980px) {
+  .pr-embedded .pr-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) minmax(220px, 42dvh);
+  }
+  .pr-embedded .pr-foot {
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+}

@@ -1164,7 +1164,14 @@ export function openPrintDialog(input = {}, extra = {}) {
   const host = document.createElement('div');
   host.className = 'pr-modal';
   host.innerHTML = MODAL_TEMPLATE;
-  document.body.appendChild(host);
+  // La sección «Muñequeras» monta el mismo panel dentro de la app, sin flotar.
+  const contenedor = (extra && extra.container) || null;
+  if (contenedor) {
+    host.classList.add('pr-embedded');
+    contenedor.appendChild(host);
+  } else {
+    document.body.appendChild(host);
+  }
 
   const panel = host.querySelector('.pr-panel');
   const overlay = host.querySelector('[data-pr-overlay]');
@@ -1683,6 +1690,11 @@ export function openPrintDialog(input = {}, extra = {}) {
     if (resizeObserver) resizeObserver.disconnect();
     host.remove();
     if (currentDialog && currentDialog.element === host) currentDialog = null;
+    try {
+      if (extra && typeof extra.onClose === 'function') extra.onClose();
+    } catch (e) {
+      console.warn('[imprimir] onClose', e);
+    }
     if (previousFocus && typeof previousFocus.focus === 'function') {
       try {
         previousFocus.focus();

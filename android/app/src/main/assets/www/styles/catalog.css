@@ -240,6 +240,9 @@
   overflow-y: auto;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(228px, 1fr));
+  /* max-content: sin esto las filas se estiran/reparten el alto disponible y
+     las tarjetas se aplastan (pasaba en el móvil). */
+  grid-auto-rows: max-content;
   align-content: start;
   gap: 12px;
   padding: 12px;
@@ -249,6 +252,8 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  height: auto;
+  align-self: start;
   padding: 0;
   overflow: hidden;
   text-align: left;
@@ -273,6 +278,7 @@
   display: block;
   width: 100%;
   height: 116px;
+  flex: none;
   background: #070d10;
   border-bottom: 1px solid var(--line);
   overflow: hidden;

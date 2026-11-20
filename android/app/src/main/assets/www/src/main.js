@@ -727,14 +727,38 @@ function pickImportFile() {
 }
 
 // ---------- impresión ----------
-function openPrint() {
+let printSection = null;
+
+/** Abre Muñequeras como sección a pantalla completa (no como ventana flotante). */
+function openPrintSection() {
+  if (printSection) return;
+  const overlay = h('div', {
+    class: 'section-overlay',
+    role: 'dialog',
+    'aria-modal': 'true',
+    'aria-label': 'Muñequeras',
+  });
+  document.body.append(overlay);
+  printSection = overlay;
+  const cerrar = () => {
+    overlay.remove();
+    printSection = null;
+    setNavActive('plays');
+    scheduleRender({ field: true, library: true, inspector: true });
+  };
+  openPrint({
+    container: overlay,
+    onClose: cerrar,
+  });
+}
+
+function openPrint(opts = {}) {
   if (!printMod?.openPrintDialog) return toast('Impresión no disponible', 'error');
   const book = store.getPlaybook();
-  printMod.openPrintDialog({
-    playbook: book,
-    plays: book.plays,
-    defaults: { current: store.state.playId },
-  });
+  printMod.openPrintDialog(
+    { playbook: book, plays: book.plays, defaults: { current: store.state.playId } },
+    opts.container ? { container: opts.container, onClose: opts.onClose } : undefined
+  );
 }
 
 // ---------- ayuda ----------
@@ -831,8 +855,7 @@ async function openSection(section) {
       break;
     case 'wrist':
       setNavActive('wrist');
-      openPrint();
-      setTimeout(() => setNavActive('plays'), 400);
+      openPrintSection();
       break;
     default:
       setNavActive('plays');
