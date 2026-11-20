@@ -30,6 +30,20 @@ para copiar y pegar, y el orden de los trámites.
 https://kaesar10.github.io/flagplays/privacidad.html
 ```
 
+Resto de textos legales publicados en el mismo sitio:
+
+| Documento | URL |
+|---|---|
+| Índice legal | https://kaesar10.github.io/flagplays/legal.html |
+| Política de privacidad | https://kaesar10.github.io/flagplays/privacidad.html |
+| Términos y condiciones | https://kaesar10.github.io/flagplays/terminos.html |
+| Aviso legal | https://kaesar10.github.io/flagplays/aviso-legal.html |
+| Licencia de uso | https://kaesar10.github.io/flagplays/licencia.html |
+| Seguridad de datos (Play) | https://kaesar10.github.io/flagplays/datos-play.html |
+
+Los mismos textos están dentro de la app (menú ⋮ → **Información legal**) y en un
+documento de Google Drive: `Mi unidad/Flag/26-27/Playboook/FlagPlays - Textos legales.docx`.
+
 El `.aab` se regenera con:
 
 ```powershell

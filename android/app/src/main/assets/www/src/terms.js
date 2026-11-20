@@ -100,6 +100,25 @@ function buildBody({ withCheck, onCheckChange }) {
   );
   input.addEventListener('change', () => onCheckChange?.(input.checked));
   wrap.append(h('div', { class: 'terms-sep' }), label);
+  // Enlace a los textos legales completos (no forma parte del texto aceptado).
+  wrap.append(
+    h(
+      'p',
+      { class: 'terms-legal' },
+      'Al aceptar también puedes consultar la ',
+      h('a', {
+        href: '#',
+        class: 'terms-link',
+        'data-legal-doc': 'privacidad',
+        text: 'política de privacidad',
+      }),
+      ', el ',
+      h('a', { href: '#', class: 'terms-link', 'data-legal-doc': 'aviso-legal', text: 'aviso legal' }),
+      ' y la ',
+      h('a', { href: '#', class: 'terms-link', 'data-legal-doc': 'licencia', text: 'licencia de uso' }),
+      '.'
+    )
+  );
   return { wrap, input };
 }
 

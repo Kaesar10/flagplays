@@ -27,6 +27,7 @@ import { openRoutesEditor, isRoutesEditorOpen, closeRoutesEditor } from './route
 import { openCatalogEditor, isCatalogOpen, closeCatalogEditor } from './catalog-open.js';
 import { initNative, isAndroidApp, isWindowsApp, shareText } from './native.js';
 import { ensureTermsAccepted, viewTerms, isAccepted, openTermsDialog } from './terms.js';
+import { openLegalDialog } from './legal-ui.js';
 import { registerCustomRoutes } from './presets.js';
 
 const $ = (sel) => document.querySelector(sel);
@@ -919,6 +920,7 @@ function openMainMenu(anchor) {
     { label: 'Simular la jugada', icon: 'zap', onClick: () => setMode('sim') },
     '-',
     { label: 'Términos y condiciones', icon: 'file', onClick: () => viewTerms() },
+    { label: 'Información legal', icon: 'file', hint: 'privacidad y aviso legal', onClick: () => openLegalDialog() },
     { label: 'Ayuda y atajos', icon: 'info', hint: '?', onClick: openHelp },
     {
       label: 'Cargar jugadas de ejemplo',
@@ -1148,6 +1150,15 @@ async function boot() {
     toast(ids.length === 1 ? 'Jugador borrado' : `${ids.length} jugadores borrados`, 'ok', 1400);
   });
 
+  // Términos del primer arranque: enlace rápido a la política de privacidad.
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('[data-legal-doc]');
+    if (!link) return;
+    e.preventDefault();
+    e.stopPropagation();
+    openLegalDialog({ docId: link.dataset.legalDoc });
+  });
+
   // Atajos de sección: Ctrl+1 Jugadas, Ctrl+2 Rutas, Ctrl+3 Árbol, Ctrl+4 Muñequeras
   document.addEventListener('keydown', (e) => {
     if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey) return;
@@ -1164,6 +1175,14 @@ async function boot() {
   if (!isAccepted()) {
     await ensureTermsAccepted();
   }
+
+  // Enlace a la información legal desde la ayuda
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'F1') {
+      e.preventDefault();
+      openLegalDialog();
+    }
+  });
 }
 
 boot().catch((err) => {
