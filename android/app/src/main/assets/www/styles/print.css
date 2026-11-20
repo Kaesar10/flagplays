@@ -1,0 +1,865 @@
+/* ==========================================================================
+   FlagPlays — estilos de impresión (hojas físicas: muñequera, call sheet,
+   hoja de jugada y tarjetas de bolsillo).
+
+   NOTA: las reglas de geometría de la hoja (.pr-page y compañía) se aplican
+   también en pantalla porque la vista previa del modal de impresión reutiliza
+   EXACTAMENTE el mismo HTML y las mismas medidas físicas. El resto de la app
+   no usa ninguna clase `pr-`, y a pantalla sólo se ve dentro del modal.
+   Todo lo específico de impresión está dentro de @media print y @page.
+   ========================================================================== */
+
+/* --- Página --------------------------------------------------------------- */
+
+@page {
+  size: A4 portrait;
+  margin: 8mm;
+}
+
+/* Página con nombre para el papel Carta (el modal inyecta también un @page
+   dinámico con el tamaño elegido; esto sirve de respaldo). */
+@page pr-letter {
+  size: Letter portrait;
+  margin: 8mm;
+}
+
+.pr-page {
+  --pr-ink: #111827;
+  --pr-paper: #ffffff;
+  --pr-cut: #9b9b9b;
+  --pr-muted: #4b5563;
+  --pr-rule: #cfcfcf;
+  --pr-rule-strong: #8a8a8a;
+  box-sizing: border-box;
+  position: relative;
+  width: var(--pr-page-w, 210mm);
+  height: var(--pr-page-h, 297mm);
+  padding: 8mm;
+  overflow: hidden;
+  color: var(--pr-ink);
+  background: var(--pr-paper);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui,
+    "Helvetica Neue", Arial, sans-serif;
+  font-size: 9pt;
+  line-height: 1.3;
+  -webkit-font-smoothing: antialiased;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.pr-page *,
+.pr-page *::before,
+.pr-page *::after {
+  box-sizing: border-box;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.pr-page svg {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.pr-page table {
+  border-collapse: collapse;
+}
+
+.pr-page h1,
+.pr-page h2,
+.pr-page h3,
+.pr-page p {
+  margin: 0;
+}
+
+.pr-page--letter.pr-page {
+  page: pr-letter;
+}
+
+.pr-empty {
+  padding: 12mm 0;
+  font-size: 10pt;
+  color: var(--pr-muted);
+}
+
+/* --- Marcas de corte ------------------------------------------------------ */
+
+.pr-crop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pr-crop i {
+  position: absolute;
+  width: 3.5mm;
+  height: 3.5mm;
+  border: 0 solid var(--pr-cut);
+}
+
+.pr-crop i:nth-child(1) {
+  top: -3mm;
+  left: -3mm;
+  border-top-width: 0.25mm;
+  border-left-width: 0.25mm;
+}
+
+.pr-crop i:nth-child(2) {
+  top: -3mm;
+  right: -3mm;
+  border-top-width: 0.25mm;
+  border-right-width: 0.25mm;
+}
+
+.pr-crop i:nth-child(3) {
+  bottom: -3mm;
+  left: -3mm;
+  border-bottom-width: 0.25mm;
+  border-left-width: 0.25mm;
+}
+
+.pr-crop i:nth-child(4) {
+  bottom: -3mm;
+  right: -3mm;
+  border-bottom-width: 0.25mm;
+  border-right-width: 0.25mm;
+}
+
+/* ==========================================================================
+   Muñequera
+   ========================================================================== */
+
+.pr-wb-page {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.pr-wb-sheet {
+  position: relative;
+}
+
+.pr-wb-grid {
+  display: grid;
+  justify-content: start;
+  align-content: start;
+}
+
+.pr-wb-card {
+  width: var(--pr-card-w, 88.9mm);
+  height: var(--pr-card-h, 127mm);
+  padding: var(--pr-pad, 1.4mm);
+  overflow: hidden;
+  background: var(--pr-paper);
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pr-page .pr-cut {
+  border: 1px dashed var(--pr-cut);
+}
+
+.pr-wb-rows {
+  display: grid;
+  grid-template-rows: repeat(var(--pr-per, 6), minmax(0, 1fr));
+  height: 100%;
+  min-height: 0;
+}
+
+.pr-wb-row {
+  display: flex;
+  align-items: center;
+  gap: var(--pr-gap, 0.6mm);
+  min-width: 0;
+  min-height: 0;
+  padding: 0.25mm 0;
+  overflow: hidden;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pr-wb-row + .pr-wb-row {
+  border-top: 0.15mm solid var(--pr-rule);
+}
+
+.pr-wb-no {
+  flex: 0 0 var(--pr-num-w, 7mm);
+  font-family: "SF Mono", "JetBrains Mono", "Cascadia Mono", ui-monospace, Menlo,
+    Consolas, monospace;
+  font-size: var(--pr-num-fs, 5mm);
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.pr-wb-dg {
+  flex: 0 0 var(--pr-dg-w, 24mm);
+  width: var(--pr-dg-w, 24mm);
+  height: var(--pr-dg-h, 17.6mm);
+  overflow: hidden;
+  border: 0.15mm solid var(--pr-rule);
+}
+
+.pr-wb-dg svg {
+  width: 100%;
+  height: 100%;
+}
+
+.pr-wb-dg.pr-dg-empty {
+  border-style: dashed;
+  opacity: 0.5;
+}
+
+.pr-wb-info {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.25mm;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.pr-wb-name {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: var(--pr-name-fs, 2.1mm);
+  font-weight: 650;
+  line-height: 1.12;
+  letter-spacing: 0.01em;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.pr-wb-note {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: var(--pr-note-fs, 1.6mm);
+  line-height: 1.1;
+  color: var(--pr-muted);
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Tarjeta con una sola jugada: número + nombre arriba y diagrama grande. */
+.pr-wb-row--solo {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.8mm 1.6mm;
+}
+
+.pr-wb-row--solo > .pr-wb-no {
+  grid-row: 1;
+  grid-column: 1;
+  text-align: left;
+}
+
+.pr-wb-row--solo > .pr-wb-info {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.pr-wb-row--solo > .pr-wb-name {
+  font-size: calc(var(--pr-name-fs, 3mm) * 1.25);
+  -webkit-line-clamp: 2;
+}
+
+.pr-wb-row--solo > .pr-wb-dg {
+  grid-row: 2;
+  grid-column: 1 / span 2;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+/* ==========================================================================
+   Call sheet
+   ========================================================================== */
+
+.pr-call-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.pr-call-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6mm;
+  padding-bottom: 2.5mm;
+  margin-bottom: 3mm;
+  border-bottom: 0.5mm solid var(--pr-ink);
+}
+
+.pr-call-head-left {
+  min-width: 0;
+}
+
+.pr-doc-title {
+  font-size: 16pt;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.pr-doc-sub {
+  margin-top: 0.8mm;
+  font-size: 9pt;
+  color: var(--pr-muted);
+}
+
+.pr-call-head-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1mm;
+  min-width: 64mm;
+  font-size: 8.5pt;
+}
+
+.pr-meta-row {
+  display: flex;
+  align-items: baseline;
+  gap: 2mm;
+}
+
+.pr-meta-k {
+  flex: 0 0 auto;
+  min-width: 13mm;
+  font-size: 7pt;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pr-muted);
+}
+
+.pr-meta-v {
+  font-weight: 650;
+}
+
+.pr-meta-line {
+  flex: 1 1 auto;
+  height: 3.6mm;
+  border-bottom: 0.2mm solid var(--pr-rule-strong);
+}
+
+.pr-call-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.pr-call-table th,
+.pr-call-table td {
+  padding: 1.1mm 1.4mm;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.pr-call-table thead th {
+  padding-top: 0;
+  font-size: 7pt;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pr-muted);
+  border-bottom: 0.3mm solid var(--pr-ink);
+}
+
+.pr-call-row {
+  border-bottom: 0.15mm solid var(--pr-rule);
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pr-c-num {
+  font-family: "SF Mono", "JetBrains Mono", "Cascadia Mono", ui-monospace, Menlo,
+    Consolas, monospace;
+  font-size: 11pt;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.pr-c-call {
+  min-width: 0;
+}
+
+.pr-call-name {
+  display: block;
+  overflow: hidden;
+  font-size: 10pt;
+  font-weight: 650;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pr-call-sub {
+  display: block;
+  margin-top: 0.3mm;
+  overflow: hidden;
+  font-size: 7.5pt;
+  color: var(--pr-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pr-c-notes {
+  font-size: 8pt;
+  line-height: 1.25;
+  color: var(--pr-muted);
+}
+
+.pr-c-vs {
+  border-left: 0.2mm solid var(--pr-rule);
+  border-right: 0.2mm solid var(--pr-rule);
+}
+
+.pr-c-dg {
+  padding-top: 0.6mm !important;
+  padding-bottom: 0.6mm !important;
+}
+
+.pr-call-dg {
+  width: 100%;
+  height: 13mm;
+  overflow: hidden;
+}
+
+.pr-call-dg svg {
+  width: 100%;
+  height: 100%;
+}
+
+.pr-cat-row th {
+  padding: 1.4mm 1.4mm 1mm;
+  font-size: 8pt;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-top: 0.3mm solid var(--pr-ink);
+  border-bottom: 0.2mm solid var(--pr-rule-strong);
+}
+
+.pr-cat-count {
+  font-family: "SF Mono", "JetBrains Mono", "Cascadia Mono", ui-monospace, Menlo,
+    Consolas, monospace;
+  font-size: 7pt;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--pr-muted);
+}
+
+/* ==========================================================================
+   Hoja de jugada (1 por página)
+   ========================================================================== */
+
+.pr-play-page {
+  display: flex;
+  flex-direction: column;
+  gap: 4mm;
+}
+
+.pr-play-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6mm;
+  padding-bottom: 2.5mm;
+  border-bottom: 0.4mm solid var(--pr-ink);
+}
+
+.pr-play-head-main {
+  min-width: 0;
+}
+
+.pr-play-no {
+  font-family: "SF Mono", "JetBrains Mono", "Cascadia Mono", ui-monospace, Menlo,
+    Consolas, monospace;
+  font-size: 10pt;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.pr-play-name {
+  margin: 0.6mm 0 1.2mm;
+  font-size: 20pt;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.pr-play-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.6mm;
+}
+
+.pr-chip {
+  padding: 0.55mm 1.7mm;
+  font-size: 7.5pt;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 0.2mm solid var(--pr-rule-strong);
+  border-radius: 1.2mm;
+  white-space: nowrap;
+}
+
+.pr-play-sign {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-end;
+  gap: 2mm;
+  min-width: 46mm;
+  font-size: 8pt;
+}
+
+.pr-play-sign-k {
+  font-size: 7pt;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pr-muted);
+}
+
+.pr-play-sign-v {
+  font-weight: 650;
+}
+
+.pr-play-sign-line {
+  flex: 1 1 auto;
+  height: 4mm;
+  border-bottom: 0.2mm solid var(--pr-rule-strong);
+}
+
+/* El diagrama ocupa ~60% de la hoja (297mm de alto). */
+.pr-play-dg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 150mm;
+  overflow: hidden;
+  border: 0.2mm solid var(--pr-rule-strong);
+}
+
+.pr-play-dg svg {
+  width: 100%;
+  height: 100%;
+}
+
+.pr-play-page--nodg .pr-play-dg {
+  display: none;
+}
+
+.pr-play-bottom {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 4mm;
+  min-height: 0;
+}
+
+.pr-play-box {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 1.8mm;
+  min-width: 0;
+  padding: 2.6mm;
+  border: 0.2mm solid var(--pr-rule-strong);
+  border-radius: 1.5mm;
+}
+
+.pr-play-notes {
+  flex: 1.15 1 0;
+}
+
+.pr-play-box-title {
+  padding-bottom: 1mm;
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--pr-muted);
+  border-bottom: 0.2mm solid var(--pr-rule);
+}
+
+.pr-play-text {
+  font-size: 9pt;
+  line-height: 1.35;
+  white-space: pre-wrap;
+}
+
+.pr-lines {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.pr-line {
+  flex: 1 1 0;
+  min-height: 5mm;
+  border-bottom: 0.2mm solid var(--pr-rule);
+}
+
+/* ==========================================================================
+   Tarjetas de bolsillo (8 por hoja: 2 × 4, ~90 × 65 mm)
+   ========================================================================== */
+
+.pr-pc-page {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.pr-pc-sheet {
+  position: relative;
+}
+
+.pr-pc-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 90mm);
+  grid-auto-rows: 65mm;
+}
+
+.pr-pc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2mm;
+  width: 90mm;
+  height: 65mm;
+  padding: 2mm;
+  overflow: hidden;
+  background: var(--pr-paper);
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pr-pc-head {
+  display: flex;
+  align-items: baseline;
+  gap: 2mm;
+  min-height: 6mm;
+}
+
+.pr-pc-no {
+  font-family: "SF Mono", "JetBrains Mono", "Cascadia Mono", ui-monospace, Menlo,
+    Consolas, monospace;
+  font-size: 12pt;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.pr-pc-name {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 9pt;
+  font-weight: 650;
+  line-height: 1.1;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.pr-pc-dg {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  border: 0.2mm solid var(--pr-rule);
+}
+
+.pr-pc-dg svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ==========================================================================
+   Rejilla configurable de jugadas (extra del modal)
+   ========================================================================== */
+
+.pr-grid-page {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.pr-grid {
+  display: grid;
+  align-content: start;
+}
+
+.pr-grid-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2mm;
+  padding: 2mm;
+  overflow: hidden;
+  background: var(--pr-paper);
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pr-grid-head {
+  display: flex;
+  align-items: baseline;
+  gap: 1.8mm;
+  min-height: 7mm;
+}
+
+.pr-grid-no {
+  font-family: "SF Mono", "JetBrains Mono", "Cascadia Mono", ui-monospace, Menlo,
+    Consolas, monospace;
+  font-size: 13pt;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.pr-grid-name {
+  overflow: hidden;
+  font-size: 10pt;
+  font-weight: 650;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pr-grid-dg {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.pr-grid-dg svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ==========================================================================
+   Color del texto — explícito a propósito.
+   La misma hoja se pinta en la vista previa del modal (pantalla oscura) y en
+   papel. Sin declarar el color aquí, los textos sin regla propia heredarían
+   tokens del tema oscuro (--tx-0) y saldrían casi blancos sobre blanco.
+   ========================================================================== */
+
+.pr-page {
+  color: var(--pr-ink);
+}
+
+.pr-page :where(h1, h2, h3, p) {
+  color: var(--pr-ink);
+}
+
+.pr-doc-title,
+.pr-play-name,
+.pr-play-no,
+.pr-wb-no,
+.pr-wb-name,
+.pr-call-name,
+.pr-c-num,
+.pr-pc-no,
+.pr-pc-name,
+.pr-grid-no,
+.pr-grid-name,
+.pr-chip,
+.pr-play-text,
+.pr-meta-v,
+.pr-play-sign-v {
+  color: var(--pr-ink);
+}
+
+.pr-call-table {
+  color: var(--pr-ink);
+}
+
+.pr-doc-sub,
+.pr-play-box-title,
+.pr-play-sign-k,
+.pr-meta-k,
+.pr-call-sub,
+.pr-c-notes,
+.pr-cat-count,
+.pr-wb-note,
+.pr-empty {
+  color: var(--pr-muted);
+}
+
+/* ==========================================================================
+   Impresión real
+   ========================================================================== */
+
+/* En pantalla, la hoja de impresión no se ve nunca. */
+#print-root {
+  display: none;
+}
+
+@media print {
+  html,
+  body {
+    height: auto !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Oculta todo lo que no es la hoja que vamos a imprimir. */
+  body > *:not(#print-root) {
+    display: none !important;
+  }
+
+  #print-root {
+    display: block !important;
+  }
+
+  /* En papel los márgenes los pone @page: la hoja ocupa el área útil. */
+  #print-root .pr-page {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    padding: 0;
+    overflow: visible;
+    border-radius: 0;
+    box-shadow: none;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  #print-root .pr-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  #print-root .pr-page,
+  #print-root .pr-wb-card,
+  #print-root .pr-wb-row,
+  #print-root .pr-call-row,
+  #print-root .pr-cat-row,
+  #print-root .pr-pc-card,
+  #print-root .pr-grid-cell,
+  #print-root .pr-play-head,
+  #print-root .pr-play-dg,
+  #print-root .pr-play-box {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  #print-root .pr-wb-grid,
+  #print-root .pr-pc-grid,
+  #print-root .pr-grid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Nada de sombras ni degradados en papel; fondos blancos puros. */
+  #print-root * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    background-image: none !important;
+  }
+}
+
+/* Aviso cuando la celda se reduce para que quepa la cuadrícula */
+.pr-hint.is-warning {
+  color: #b45309;
+  font-weight: 600;
+}

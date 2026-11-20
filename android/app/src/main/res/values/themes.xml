@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Tema principal: oscuro "turf", sin ActionBar, barras del sistema del mismo color. -->
+    <style name="Theme.FlagPlays" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/flagplays_bg</item>
+        <item name="android:colorBackground">@color/flagplays_bg</item>
+        <item name="android:statusBarColor">@color/flagplays_bg</item>
+        <item name="android:navigationBarColor">@color/flagplays_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:colorAccent">@color/flagplays_accent</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:windowDisablePreview">false</item>
+    </style>
+
+    <!-- Splash: fondo oscuro + icono centrado (layer-list). Se cambia al tema normal en onCreate. -->
+    <style name="Theme.FlagPlays.Splash" parent="@style/Theme.FlagPlays">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+    </style>
+
+</resources>

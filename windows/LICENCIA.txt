@@ -1,0 +1,28 @@
+FlagPlays — Pizarra y libreta de jugadas de flag football
+==========================================================
+
+Copyright (c) 2026 FlagPlays. Todos los derechos reservados.
+
+Este programa se distribuye GRATIS para uso personal y de equipo (entrenadores,
+jugadores y clubes). Puedes instalarlo y usarlo en los ordenadores que quieras y
+pasárselo a quien quieras, siempre que no lo vendas ni lo incluyas en un producto
+de pago sin permiso.
+
+No se permite:
+  - vender este programa ni cobrar por su distribución;
+  - modificar el ejecutable y redistribuirlo con otro nombre;
+  - quitar los avisos de autoría.
+
+El programa se ofrece TAL CUAL, sin garantía de ningún tipo. No se garantiza que
+funcione sin errores ni que sirva para un fin concreto. En ningún caso el autor
+será responsable de daños derivados del uso del programa, incluida la pérdida de
+las jugadas guardadas (haz copias de seguridad exportando la libreta a JSON).
+
+Tus datos son tuyos: todo se guarda en tu ordenador
+(%LOCALAPPDATA%\FlagPlays) y no se envía nada a ningún servidor.
+
+Marcas: NFL FLAG y USA Flag son marcas de sus propietarios. Este programa no está
+afiliado, patrocinado ni respaldado por la NFL ni por ninguna liga.
+
+Icono y tipografías: las fuentes son las del sistema; las métricas de Helvetica
+usadas para generar los PDF provienen de las métricas AFM públicas de Adobe.

@@ -1,0 +1,308 @@
+/* FlagPlays — tokens de diseño y reset. Tema oscuro "turf". */
+
+:root {
+  /* Superficies */
+  --bg-0: #070b0e;
+  --bg-1: #0b1116;
+  --bg-2: #101a20;
+  --bg-3: #16232b;
+  --bg-4: #1d2e37;
+  --line: #1f303a;
+  --line-2: #2a3f4b;
+
+  /* Texto */
+  --tx-0: #eef6f2;
+  --tx-1: #b9cbd3;
+  --tx-2: #7d939e;
+  --tx-3: #566b75;
+
+  /* Acentos */
+  --accent: #9ae63f;
+  --accent-dim: #6fae25;
+  --accent-ink: #0a1206;
+  --off: #eaf7f0;
+  --off-ink: #0d1a14;
+  --def: #ff7a5c;
+  --def-dim: #b4452e;
+  --info: #63c8ff;
+  --warn: #ffc94d;
+  --danger: #ff5d5d;
+  --ok: #57d98a;
+
+  /* Roles */
+  --role-qb: #9ae63f;
+  --role-c: #b9cbd3;
+  --role-wr: #8ee6ff;
+  --role-rb: #ffd166;
+  --role-te: #d7a8ff;
+  --role-dl: #ff7a5c;
+  --role-lb: #ff9d43;
+  --role-db: #ff6b9d;
+  --role-s: #c07cff;
+
+  /* Campo */
+  --turf-1: #0f2f1d;
+  --turf-2: #0a2417;
+  --turf-line: rgba(230, 255, 240, 0.14);
+  --turf-line-strong: rgba(230, 255, 240, 0.3);
+  --turf-ez: #123c26;
+  --ball: #e8a33d;
+
+  /* Formas */
+  --r-sm: 6px;
+  --r-md: 9px;
+  --r-lg: 13px;
+  --r-full: 999px;
+
+  /* Elevación */
+  --sh-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sh-2: 0 6px 18px rgba(0, 0, 0, 0.45);
+  --sh-3: 0 18px 48px rgba(0, 0, 0, 0.6);
+
+  /* Tipografía */
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  --mono: "SF Mono", "JetBrains Mono", "Cascadia Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  --h-top: 52px;
+  --w-side: 268px;
+  --w-insp: 320px;
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+html {
+  /* franja bajo la barra de estado, del tono de la barra superior */
+  background: var(--bg-1);
+}
+
+body {
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--tx-0);
+  background: var(--bg-0);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+/* El atributo hidden debe ganar siempre a los display de los componentes. */
+[hidden] {
+  display: none !important;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+a {
+  color: var(--accent);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
+}
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--line-2);
+  border-radius: var(--r-full);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #3a5563;
+  background-clip: padding-box;
+}
+
+/* Foco visible accesible */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Utilidades compartidas por toda la app */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--tx-1);
+  background: var(--bg-3);
+  border: 1px solid var(--line-2);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 11px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--tx-1);
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  white-space: nowrap;
+}
+.btn:hover {
+  background: var(--bg-4);
+  color: var(--tx-0);
+  border-color: var(--line-2);
+}
+.btn:active {
+  transform: translateY(0.5px);
+}
+.btn[disabled] {
+  opacity: 0.4;
+  pointer-events: none;
+}
+.btn.primary {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+  font-weight: 650;
+}
+.btn.primary:hover {
+  background: #aef05c;
+  border-color: #aef05c;
+}
+.btn.ghost {
+  background: transparent;
+  border-color: transparent;
+}
+.btn.ghost:hover {
+  background: var(--bg-3);
+  border-color: var(--line);
+}
+.btn.danger {
+  color: var(--danger);
+  border-color: #4a2323;
+  background: #1c1113;
+}
+.btn.danger:hover {
+  background: #2a1518;
+}
+.btn.sm {
+  height: 27px;
+  padding: 0 8px;
+  font-size: 11.5px;
+  border-radius: var(--r-sm);
+}
+.btn.icon {
+  width: 32px;
+  padding: 0;
+  justify-content: center;
+}
+.btn.icon.sm {
+  width: 27px;
+}
+.btn svg {
+  flex: none;
+}
+
+.caret {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid currentColor;
+  opacity: 0.7;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: 19px;
+  padding: 0 7px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--tx-1);
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+  white-space: nowrap;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.muted {
+  color: var(--tx-2);
+}
+
+.sep {
+  width: 1px;
+  height: 20px;
+  background: var(--line);
+  flex: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

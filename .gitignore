@@ -1,0 +1,30 @@
+# Artefactos de compilación (no se publican)
+dist/
+.cache/
+
+# Material de pruebas, capturas de verificación y extracciones temporales
+qa/
+
+# Clave de firma de la APK: NUNCA se publica
+*.jks
+*.keystore
+*.p12
+*.pfx
+
+# Dependencias y sistema
+node_modules/
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Secretos y configuración local
+.env
+*.local
+
+# Copia generada de la web para el empaquetado de Windows
+windows/www/
+
+# Salidas de compilación de Android
+android/build/
+android/app/build/
+android/.gradle/

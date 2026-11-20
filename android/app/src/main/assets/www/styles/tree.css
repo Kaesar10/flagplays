@@ -1,0 +1,1644 @@
+/* ============================================================================
+   FlagPlays — styles/tree.css
+   Editor del árbol de rutas (pantalla completa). Solo clases con prefijo «tr-».
+   Reutiliza los tokens, tipografía y componentes de base.css y app.css.
+   ========================================================================== */
+
+/* ============================ CONTENEDOR ============================ */
+/* El editor rellena el contenedor que le pasa la app (p. ej. div.tree-host),
+   NO la ventana: así convive con la barra superior del wrapper. */
+.tr-shell {
+  --tr-side: 240px;
+  --tr-props: 320px;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: var(--h-top) minmax(0, 1fr);
+  overflow: hidden;
+  background: var(--bg-0);
+  color: var(--tx-0);
+}
+
+/* ============================ BARRA SUPERIOR ============================ */
+.tr-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 0 12px;
+  background: var(--bg-1);
+  border-bottom: 1px solid var(--line);
+}
+
+.tr-ident {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  min-width: 0;
+}
+
+.tr-title {
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.tr-title-short {
+  display: none;
+}
+
+.tr-stats {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+}
+
+.tr-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 10.5px;
+  color: var(--tx-3);
+  white-space: nowrap;
+}
+
+.tr-stat b {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--tx-1);
+}
+
+.tr-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  flex: none;
+}
+
+/* Conmutador de paneles: solo aparece en móvil (≤900 px). */
+.tr-tabs {
+  display: none;
+}
+
+/* ============================ REJILLA DE TRES ZONAS ============================ */
+.tr-body {
+  display: grid;
+  grid-template-columns: var(--tr-side) minmax(0, 1fr) var(--tr-props);
+  min-height: 0;
+}
+
+/* ============================ ZONA IZQUIERDA ============================ */
+.tr-side {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--bg-1);
+  border-right: 1px solid var(--line);
+}
+
+.tr-side-head {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 11px 10px 12px;
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+
+.tr-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.tr-field > .lbl {
+  padding-left: 1px;
+}
+
+.tr-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tr-btn-block {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+/* Selector de orientación (aspecto de .segmented de la app) */
+.tr-seg {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--bg-0);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+.tr-seg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex: 1;
+  height: 26px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--tx-2);
+  border-radius: 6px;
+  transition: background 0.12s, color 0.12s;
+}
+
+.tr-seg-btn:hover {
+  color: var(--tx-0);
+  background: var(--bg-2);
+}
+
+.tr-seg-btn.is-active {
+  color: var(--accent);
+  background: var(--bg-3);
+  box-shadow: inset 0 0 0 1px rgba(154, 230, 63, 0.2);
+}
+
+/* Cabecera del esquema (misma familia que .sb-title) */
+.tr-side-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 12px 7px;
+  flex: none;
+}
+
+.tr-side-titletext {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--tx-3);
+}
+
+.tr-side-count {
+  margin-left: auto;
+  padding: 1px 5px;
+  font-size: 10.5px;
+  color: var(--tx-3);
+  background: var(--bg-2);
+  border-radius: var(--r-full);
+}
+
+/* Esquema */
+.tr-outline {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.tr-outline-empty {
+  padding: 18px 10px;
+  font-size: 11.5px;
+  color: var(--tx-3);
+  text-align: center;
+}
+
+.tr-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-right: 4px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+}
+
+.tr-row:hover {
+  background: var(--bg-2);
+}
+
+.tr-row.is-active {
+  background: var(--bg-3);
+  border-color: var(--line-2);
+}
+
+.tr-row.is-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.tr-row-main {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  padding-left: calc(6px + var(--tr-indent, 0) * 13px);
+  color: var(--tx-1);
+  text-align: left;
+}
+
+.tr-row-main:hover {
+  color: var(--tx-0);
+}
+
+.tr-num {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 22px;
+  height: 18px;
+  font-size: 10px;
+  color: var(--tx-2);
+  background: var(--bg-0);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.tr-row.is-active .tr-num {
+  color: var(--accent);
+  background: rgba(154, 230, 63, 0.08);
+  border-color: rgba(154, 230, 63, 0.35);
+}
+
+.tr-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tr-dot);
+}
+
+.tr-label {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tx-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tr-row.is-active .tr-label {
+  color: var(--tx-0);
+}
+
+.tr-branch {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--tx-3);
+}
+
+.tr-row-acts {
+  display: flex;
+  gap: 0;
+  flex: none;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.tr-row:hover .tr-row-acts,
+.tr-row.is-active .tr-row-acts,
+.tr-row:focus-within .tr-row-acts {
+  opacity: 1;
+}
+
+.tr-act {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  color: var(--tx-2);
+}
+
+.tr-act:hover {
+  background: var(--bg-4);
+  color: var(--tx-0);
+}
+
+.tr-act-del:hover {
+  color: var(--danger);
+  background: rgba(255, 93, 93, 0.1);
+}
+
+.tr-act[disabled] {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+/* Pie con atajos */
+.tr-hints {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 9px;
+  padding: 8px 12px 9px;
+  flex: none;
+  font-size: 10.5px;
+  color: var(--tx-3);
+  border-top: 1px solid var(--line);
+}
+
+.tr-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ============================ ZONA CENTRAL ============================ */
+.tr-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 8px 12px 0;
+  background: var(--bg-0);
+}
+
+/* Barra del lienzo: modo edición de ruta */
+.tr-canvas-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  flex: none;
+  min-width: 0;
+  padding: 0 2px;
+}
+
+.tr-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 9px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--tx-2);
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  white-space: nowrap;
+  flex: none;
+}
+
+.tr-edit-btn:hover {
+  color: var(--tx-0);
+  background: var(--bg-3);
+  border-color: var(--line-2);
+}
+
+.tr-edit-btn.is-active {
+  color: var(--accent);
+  background: rgba(154, 230, 63, 0.1);
+  border-color: rgba(154, 230, 63, 0.35);
+}
+
+.tr-canvas-hint {
+  min-width: 0;
+  font-size: 10.5px;
+  color: var(--tx-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tr-preview-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.tr-preview {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  overflow: auto;
+  background: #070d10;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  touch-action: none;
+}
+
+.tr-preview [data-node-id] {
+  cursor: grab;
+}
+
+.tr-preview.is-dragging,
+.tr-preview.is-dragging [data-node-id],
+.tr-preview.is-dragging [data-route-handle] {
+  cursor: grabbing !important;
+}
+
+.tr-preview.is-dragging {
+  user-select: none;
+}
+
+.tr-preview [data-route-handle] {
+  r: 6px;
+}
+
+.tr-preview.is-fit {
+  place-items: center;
+}
+
+.tr-preview.is-scroll {
+  place-items: start stretch;
+  align-content: start;
+}
+
+.tr-preview > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+}
+
+.tr-preview-error {
+  align-self: center;
+  justify-self: center;
+  padding: 24px;
+  font-size: 12px;
+  color: var(--tx-2);
+}
+
+.tr-stage-foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  flex: none;
+  font-size: 11px;
+  color: var(--tx-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tr-stage-foot-ic {
+  display: inline-flex;
+  color: var(--tx-3);
+}
+
+/* Zoom de la vista previa (esquina superior derecha del lienzo) */
+.tr-zoom {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  height: 30px;
+  padding: 2px;
+  background: rgba(11, 17, 22, 0.9);
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  box-shadow: var(--sh-1);
+}
+
+.tr-zoom-btn {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: var(--tx-2);
+  border-radius: 6px;
+}
+
+.tr-zoom-btn:hover {
+  color: var(--tx-0);
+  background: var(--bg-4);
+}
+
+.tr-zoom-btn[disabled] {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.tr-zoom-val {
+  min-width: 44px;
+  font-size: 10.5px;
+  color: var(--tx-1);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.tr-zoom-sep {
+  width: 1px;
+  height: 16px;
+  margin: 0 4px;
+  background: var(--line);
+}
+
+.tr-zoom-fit {
+  height: 24px;
+  padding: 0 8px;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--tx-2);
+  border-radius: 6px;
+}
+
+.tr-zoom-fit:hover {
+  color: var(--tx-0);
+  background: var(--bg-4);
+}
+
+.tr-zoom-fit.is-active {
+  color: var(--accent);
+  background: var(--bg-3);
+  box-shadow: inset 0 0 0 1px rgba(154, 230, 63, 0.2);
+}
+
+.tr-zoom-note {
+  position: absolute;
+  top: 46px;
+  right: 10px;
+  z-index: 3;
+  max-width: 210px;
+  margin: 0;
+  padding: 4px 8px;
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--warn);
+  text-align: right;
+  background: rgba(11, 17, 22, 0.9);
+  border: 1px solid rgba(255, 201, 77, 0.3);
+  border-radius: 6px;
+}
+
+/* ============================ ZONA DERECHA ============================ */
+.tr-props {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--bg-1);
+  border-left: 1px solid var(--line);
+}
+
+.tr-props-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px 12px 10px;
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+
+.tr-props-headtext {
+  flex: 1;
+  min-width: 0;
+}
+
+.tr-props-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx-0);
+}
+
+.tr-props-sub {
+  margin-top: 2px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--tx-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tr-kind {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  height: 19px;
+  padding: 0 7px;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(154, 230, 63, 0.1);
+  border: 1px solid rgba(154, 230, 63, 0.24);
+  border-radius: var(--r-full);
+}
+
+.tr-props-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 12px 12px 24px;
+}
+
+.tr-fields {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.tr-field-wide {
+  grid-column: 1 / -1;
+}
+
+.tr-fields .input {
+  height: 30px;
+}
+
+.tr-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tr-group-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.tr-group-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tx-3);
+}
+
+.tr-group-note {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--tx-3);
+}
+
+.tr-group-note.mono {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rejilla de plantillas de ruta */
+.tr-routes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.tr-route-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 3px 4px;
+  background: var(--bg-0);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.tr-route-card:hover {
+  background: var(--bg-2);
+  border-color: var(--line-2);
+}
+
+.tr-route-card.is-active {
+  background: rgba(154, 230, 63, 0.08);
+  border-color: var(--accent);
+}
+
+.tr-route-thumb {
+  display: block;
+  width: 100%;
+  height: 28px;
+  color: var(--tx-2);
+}
+
+.tr-route-thumb svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  stroke: currentColor;
+  fill: none;
+}
+
+/* En las tarjetas pequeñas el marco del mini-diagrama sobra: el borde de la
+   propia tarjeta ya hace de recuadro. Quedan la línea de scrimmage y la ruta. */
+.tr-route-thumb svg rect {
+  display: none;
+}
+
+.tr-route-thumb svg polyline {
+  stroke: var(--tx-1);
+  stroke-width: 2;
+}
+
+.tr-route-thumb svg circle {
+  fill: var(--tx-1);
+}
+
+.tr-route-thumb svg path {
+  fill: var(--tx-1);
+}
+
+.tr-route-card.is-active .tr-route-thumb svg polyline {
+  stroke: var(--accent);
+}
+
+.tr-route-card.is-active .tr-route-thumb svg circle,
+.tr-route-card.is-active .tr-route-thumb svg path {
+  fill: var(--accent);
+}
+
+.tr-route-name {
+  width: 100%;
+  font-size: 9.5px;
+  line-height: 1.15;
+  color: var(--tx-3);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tr-route-card.is-active .tr-route-name {
+  color: var(--tx-1);
+}
+
+/* Profundidad */
+.tr-depth {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tr-depth .range {
+  width: 100%;
+}
+
+.tr-depth-scale {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--tx-3);
+}
+
+/* Notas */
+.tr-notes {
+  width: 100%;
+  min-height: 68px;
+  padding: 7px 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--tx-0);
+  background: var(--bg-0);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  resize: vertical;
+}
+
+.tr-notes:focus {
+  outline: none;
+  border-color: var(--accent-dim);
+  box-shadow: 0 0 0 3px rgba(154, 230, 63, 0.1);
+}
+
+/* Color */
+.tr-swatches {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tr-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--tr-swatch);
+  border: 2px solid transparent;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+  transition: border-color 0.1s, transform 0.1s;
+}
+
+.tr-swatch:hover {
+  transform: scale(1.08);
+}
+
+.tr-swatch.is-active {
+  border-color: var(--tx-0);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+.tr-swatch-auto {
+  width: auto;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: var(--r-full);
+  background: transparent;
+  border: 1px dashed var(--line-2);
+  color: var(--tx-2);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.tr-swatch-auto.is-active {
+  border-style: solid;
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(154, 230, 63, 0.08);
+}
+
+/* Estado vacío */
+.tr-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 30px 24px;
+  text-align: center;
+  color: var(--tx-3);
+}
+
+.tr-empty-ic {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--tx-3);
+}
+
+.tr-empty-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tx-1);
+}
+
+.tr-empty-text {
+  max-width: 230px;
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+.tr-empty-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+  font-size: 10.5px;
+  color: var(--tx-3);
+}
+
+/* ============================ RESPONSIVE ============================ */
+@media (max-width: 1280px) {
+  .tr-shell {
+    --tr-side: 224px;
+    --tr-props: 300px;
+  }
+
+  .tr-stat:nth-child(4) {
+    display: none;
+  }
+}
+
+@media (max-width: 1060px) {
+  .tr-shell {
+    --tr-side: 210px;
+    --tr-props: 280px;
+  }
+
+  .tr-stats {
+    gap: 8px;
+  }
+
+  .tr-stat:nth-child(3) {
+    display: none;
+  }
+
+  .tr-ident {
+    gap: 10px;
+  }
+}
+
+/* ============================ ESQUEMA: ARRASTRE ============================ */
+.tr-row.is-dragging {
+  opacity: 0.55;
+}
+
+.tr-row.is-drop-before::after,
+.tr-row.is-drop-after::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+  pointer-events: none;
+}
+
+.tr-row.is-drop-before::after {
+  top: -2px;
+}
+
+.tr-row.is-drop-after::after {
+  bottom: -2px;
+}
+
+/* ============================ EDITOR DE RUTA ============================ */
+.tr-route-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tr-route-editor-canvas {
+  width: 100%;
+  height: 170px;
+  background: var(--bg-0);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+}
+
+.tr-route-editor-canvas svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.tre-bg {
+  fill: #070d10;
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.tre-area {
+  cursor: crosshair;
+}
+
+.tre-grid,
+.tre-grid-label,
+.tre-los,
+.tre-los-label,
+.tre-origin,
+.tre-empty {
+  pointer-events: none;
+}
+
+.tre-grid {
+  stroke: rgba(238, 246, 242, 0.06);
+  stroke-width: 1;
+}
+
+.tre-grid-label {
+  fill: var(--tx-3);
+  font-family: var(--mono);
+  font-size: 8px;
+}
+
+.tre-los {
+  stroke: rgba(238, 246, 242, 0.3);
+  stroke-width: 1.2;
+  stroke-dasharray: 5 4;
+}
+
+.tre-los-label {
+  fill: var(--tx-3);
+  font-family: var(--mono);
+  font-size: 8px;
+}
+
+.tre-line {
+  fill: none;
+  stroke: var(--tre-route, var(--accent));
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.tre-arrow {
+  fill: var(--tre-route, var(--accent));
+  pointer-events: none;
+}
+
+.tre-origin {
+  fill: var(--tx-1);
+  pointer-events: none;
+}
+
+.tre-handle {
+  r: 6px;
+  fill: var(--bg-1);
+  stroke: var(--accent);
+  stroke-width: 2;
+  cursor: grab;
+}
+
+.tre-handle:hover {
+  fill: rgba(154, 230, 63, 0.22);
+}
+
+.tre-empty {
+  fill: var(--tx-3);
+  font-family: var(--font);
+  font-size: 10px;
+  pointer-events: none;
+}
+
+.tr-route-editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tr-re-btn {
+  flex: 1 1 42%;
+  justify-content: center;
+}
+
+.tr-re-btn-wide {
+  flex: 1 1 100%;
+}
+/* ============================ MÓVIL (≤ 900 px) ============================ */
+/* Un panel a la vez con conmutador, objetivos táctiles y áreas seguras. */
+@media (max-width: 900px) {
+  .tr-shell {
+    --tr-top-h: 48px;
+    --tr-tabs-h: 50px;
+    grid-template-rows: var(--tr-top-h) var(--tr-tabs-h) minmax(0, 1fr);
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .tr-shell * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .tr-shell button,
+  .tr-shell input,
+  .tr-shell select,
+  .tr-shell textarea,
+  .tr-shell .tr-row-main {
+    touch-action: manipulation;
+  }
+
+  /* Barra superior compacta: título corto, 2 estadísticas, PDF y Cerrar */
+  .tr-top {
+    height: var(--tr-top-h);
+    padding: 0 8px;
+    gap: 8px;
+  }
+
+  .tr-title {
+    font-size: 15px;
+  }
+
+  .tr-title-full {
+    display: none;
+  }
+
+  .tr-title-short {
+    display: inline;
+  }
+
+  .tr-ident {
+    gap: 10px;
+  }
+
+  .tr-stats {
+    gap: 8px;
+  }
+
+  .tr-stat {
+    font-size: 11px;
+  }
+
+  .tr-stat:nth-child(2),
+  .tr-stat:nth-child(3),
+  .tr-stat:nth-child(5) {
+    display: none;
+  }
+
+  .tr-stat:nth-child(4) {
+    display: inline-flex;
+  }
+
+  .tr-top-actions {
+    gap: 4px;
+  }
+
+  .tr-top-actions .btn {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .tr-top-actions .tr-btn-export span {
+    display: none;
+  }
+
+  .tr-btn-print {
+    display: none;
+  }
+
+  .tr-top-actions > .sep {
+    display: none;
+  }
+
+  /* Conmutador fijo de paneles */
+  .tr-tabs {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px 8px;
+    background: var(--bg-1);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .tr-tab {
+    flex: 1;
+    min-width: 0;
+    height: 44px;
+    padding: 0 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--tx-2);
+    border-radius: var(--r-sm);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .tr-tab:hover {
+    color: var(--tx-1);
+  }
+
+  .tr-tab.is-active {
+    color: var(--accent);
+    background: var(--bg-3);
+    box-shadow: inset 0 0 0 1px rgba(154, 230, 63, 0.2);
+  }
+
+  /* Un panel a la vez */
+  .tr-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .tr-side,
+  .tr-stage,
+  .tr-props {
+    display: none;
+    width: auto;
+    min-height: 0;
+    border: 0;
+  }
+
+  .tr-shell[data-panel="outline"] .tr-side,
+  .tr-shell[data-panel="tree"] .tr-stage,
+  .tr-shell[data-panel="props"] .tr-props {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Esquema táctil y tipografía +1 px */
+  .tr-side-head {
+    gap: 10px;
+    padding: 10px 12px 12px;
+  }
+
+  .tr-field > .lbl {
+    font-size: 11px;
+  }
+
+  .tr-side-head .input,
+  .tr-side-head .select {
+    height: 42px;
+    font-size: 13px;
+  }
+
+  .tr-btn-block {
+    height: 44px;
+    font-size: 13px;
+  }
+
+  .tr-seg {
+    padding: 3px;
+  }
+
+  .tr-seg-btn {
+    min-height: 44px;
+    font-size: 12px;
+  }
+
+  .tr-side-title {
+    padding: 8px 12px 6px;
+  }
+
+  .tr-side-titletext {
+    font-size: 11.5px;
+  }
+
+  .tr-side-count {
+    font-size: 11.5px;
+  }
+
+  .tr-outline {
+    gap: 3px;
+    padding: 2px 8px 12px;
+    scrollbar-width: none;
+  }
+
+  .tr-outline::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tr-row {
+    min-height: 44px;
+    padding-right: 2px;
+  }
+
+  .tr-row-main {
+    height: auto;
+    min-height: 44px;
+    gap: 7px;
+    padding-left: calc(6px + var(--tr-indent, 0) * 9px);
+  }
+
+  .tr-label {
+    font-size: 13px;
+  }
+
+  .tr-num {
+    width: 24px;
+    height: 22px;
+    font-size: 11px;
+  }
+
+  .tr-row-acts {
+    opacity: 1;
+  }
+
+  .tr-act {
+    width: 44px;
+    height: 44px;
+    border-radius: 7px;
+  }
+
+  .tr-branch {
+    display: none;
+  }
+
+  .tr-hints {
+    display: none;
+  }
+
+  /* Vista del árbol */
+  .tr-stage {
+    padding: 10px 10px 0;
+  }
+
+  .tr-stage-foot {
+    display: none;
+  }
+
+  .tr-zoom {
+    top: 16px;
+    right: 16px;
+    height: 34px;
+  }
+
+  .tr-zoom-btn {
+    width: 34px;
+    height: 30px;
+  }
+
+  .tr-zoom-val {
+    min-width: 44px;
+    font-size: 11px;
+  }
+
+  .tr-zoom-fit {
+    height: 30px;
+    font-size: 11px;
+  }
+
+  .tr-zoom-note {
+    top: 56px;
+    right: 16px;
+    font-size: 10.5px;
+  }
+
+  /* Propiedades táctiles */
+  .tr-props-head {
+    padding: 10px 12px 9px;
+  }
+
+  .tr-props-title {
+    font-size: 13px;
+  }
+
+  .tr-props-sub {
+    font-size: 11px;
+  }
+
+  .tr-props-scroll {
+    gap: 14px;
+    padding: 12px 12px 20px;
+  }
+
+  .tr-fields {
+    grid-template-columns: 70px minmax(0, 1fr);
+    gap: 10px 8px;
+  }
+
+  .tr-fields .input {
+    height: 42px;
+    font-size: 13px;
+  }
+
+  .tr-group-title {
+    font-size: 11.5px;
+  }
+
+  .tr-group-note {
+    font-size: 11px;
+  }
+
+  .tr-route-card {
+    min-height: 44px;
+    padding: 7px 4px 6px;
+  }
+
+  .tr-route-name {
+    font-size: 10.5px;
+  }
+
+  .tr-route-thumb {
+    height: 26px;
+  }
+
+  .tr-depth-scale {
+    font-size: 10.5px;
+  }
+
+  .tr-notes {
+    min-height: 84px;
+    font-size: 13px;
+  }
+
+  .tr-swatches {
+    gap: 10px;
+  }
+
+  .tr-swatch {
+    width: 44px;
+    height: 44px;
+  }
+
+  .tr-swatch-auto {
+    height: 44px;
+    padding: 0 14px;
+    font-size: 11px;
+  }
+
+  .tr-empty-title {
+    font-size: 14px;
+  }
+
+  .tr-empty-text {
+    font-size: 12.5px;
+  }
+}
+
+/* ============================ MÓVIL EN PAISAJE ============================ */
+/* Alto < 500 px: barra y cabeceras compactas, paneles usables. */
+@media (max-width: 900px) and (max-height: 500px) {
+  .tr-shell {
+    --tr-top-h: 44px;
+    --tr-tabs-h: 36px;
+  }
+
+  .tr-top {
+    padding: 0 6px;
+    gap: 6px;
+  }
+
+  .tr-title {
+    font-size: 14px;
+  }
+
+  .tr-stats {
+    display: none;
+  }
+
+  .tr-tabs {
+    padding: 2px 8px;
+  }
+
+  .tr-tab {
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .tr-side-head {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    padding: 8px 10px;
+    align-items: end;
+  }
+
+  .tr-side-head > .tr-field:nth-child(1),
+  .tr-side-head > .tr-actions {
+    grid-column: 1 / -1;
+  }
+
+  .tr-side-head .tr-field > .lbl {
+    display: none;
+  }
+
+  .tr-side-head .input,
+  .tr-side-head .select {
+    height: 38px;
+  }
+
+  .tr-actions {
+    flex-direction: row;
+  }
+
+  .tr-actions .tr-btn-block {
+    flex: 1;
+    height: 38px;
+  }
+
+  .tr-seg-btn {
+    min-height: 44px;
+  }
+
+  .tr-side-title {
+    padding: 6px 12px 4px;
+  }
+
+  .tr-props-scroll {
+    gap: 10px;
+    padding: 10px 12px 16px;
+  }
+
+  .tr-routes {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .tr-stage {
+    padding: 8px 8px 0;
+  }
+
+  .tr-zoom {
+    top: 14px;
+    right: 14px;
+  }
+
+  .tr-zoom-note {
+    top: 52px;
+    right: 14px;
+  }
+
+  .tr-empty {
+    padding: 16px;
+  }
+}
+
+
+
+
+
+/* ============================ MÓVIL: NUEVOS CONTROLES ============================ */
+@media (max-width: 900px) {
+  .tr-canvas-bar {
+    height: 44px;
+    padding: 0;
+    gap: 6px;
+  }
+
+  .tr-edit-btn {
+    height: 44px;
+    padding: 0 12px;
+    font-size: 12.5px;
+  }
+
+  .tr-canvas-hint {
+    display: none;
+  }
+
+  .tr-zoom {
+    top: 10px;
+    right: 10px;
+  }
+
+  .tr-zoom-note {
+    top: 50px;
+    right: 10px;
+  }
+
+  .tr-re-btn {
+    min-height: 44px;
+    font-size: 12.5px;
+  }
+
+  .tr-preview [data-route-handle] {
+    r: 9px;
+  }
+
+  .tre-handle {
+    r: 8px;
+  }
+}
+
+@media (max-width: 900px) and (max-height: 500px) {
+  .tr-canvas-bar {
+    height: 36px;
+  }
+
+  .tr-edit-btn {
+    height: 32px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+
+  .tr-re-btn {
+    min-height: 38px;
+  }
+
+  .tr-route-editor-canvas {
+    height: 150px;
+  }
+}
+
+
+
+/* Rutas propias en la rejilla del árbol */
+.tr-routes-note {
+  grid-column: 1 / -1;
+  margin: 2px 0 4px;
+  font-size: 10.5px;
+  color: var(--accent);
+  opacity: 0.85;
+}
+.tr-route-card {
+  position: relative;
+}
+.tr-route-badge {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  padding: 1px 4px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-radius: 3px;
+}

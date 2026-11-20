@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>FlagPlays — Pizarra de jugadas de flag football</title>
+    <meta
+      name="description"
+      content="Diseña, anima, simula e imprime jugadas de flag football. Editor de rutas, defensas, análisis de jugadas, muñequeras listas para imprimir y libreta compartible."
+    />
+    <meta name="theme-color" content="#070b0e" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b1116'/%3E%3Crect x='4' y='6' width='24' height='20' rx='3' fill='%23123a22'/%3E%3Cpath d='M9 22V12' stroke='%239ae63f' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M9 21c3 0 3-4 6-4s4-3 8-5' stroke='%23f0fbf4' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='23' cy='12' r='2.4' fill='%23f0fbf4'/%3E%3C/svg%3E"
+    />
+    <script>
+      // Recoge errores de arranque para poder diagnosticarlos (y mostrarlos al usuario).
+      window.__errors = [];
+      function __report(msg) {
+        window.__errors.push(msg);
+        var box = document.getElementById('boot-errors');
+        if (box) {
+          box.hidden = false;
+          box.textContent = window.__errors.join('\n');
+        }
+      }
+      window.addEventListener('error', function (e) {
+        __report((e.message || 'Error') + ' @ ' + (e.filename || '') + ':' + (e.lineno || 0));
+      });
+      window.addEventListener('unhandledrejection', function (e) {
+        __report('Promesa rechazada: ' + ((e.reason && (e.reason.stack || e.reason.message)) || e.reason));
+      });
+    </script>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" href="./styles/base.css" />
+    <link rel="stylesheet" href="./styles/app.css" />
+    <link rel="stylesheet" href="./styles/tree.css" />
+    <link rel="stylesheet" href="./styles/mobile.css" />
+    <link rel="stylesheet" href="./styles/routes.css" />
+    <link rel="stylesheet" href="./styles/catalog.css" />
+    <link rel="stylesheet" href="./styles/print-ui.css" />
+    <link rel="stylesheet" href="./styles/print.css" />
+  </head>
+  <body>
+    <div id="app" class="app">
+      <!-- BARRA SUPERIOR -->
+      <header class="topbar">
+        <div class="brand" title="FlagPlays — pizarra de jugadas de flag football">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none">
+              <path d="M5 20V6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" />
+              <path d="M5 19c3.2 0 3-4.2 6.4-4.2S15 11 19 8.6" stroke="#f0fbf4" stroke-width="1.9" stroke-linecap="round" />
+              <circle cx="18.4" cy="9.1" r="2.1" fill="#f0fbf4" />
+            </svg>
+          </span>
+          <span class="brand-name">FlagPlays</span>
+        </div>
+
+        <button class="playbook-chip" id="bookNameBtn" title="Renombrar la libreta">
+          <span id="bookName">Mi libreta</span>
+          <span class="caret"></span>
+        </button>
+
+        <div class="sep"></div>
+
+        <button class="btn icon ghost" id="undoBtn" title="Deshacer (Ctrl+Z)" aria-label="Deshacer"></button>
+        <button class="btn icon ghost" id="redoBtn" title="Rehacer (Ctrl+Y)" aria-label="Rehacer"></button>
+
+        <div class="tb-spacer"></div>
+
+        <div class="segmented" id="modeSeg" role="tablist" aria-label="Modo de trabajo">
+          <button class="seg is-active" data-mode="edit" role="tab" aria-selected="true">Editar</button>
+          <button class="seg" data-mode="animate" role="tab" aria-selected="false">Animar</button>
+          <button class="seg" data-mode="sim" role="tab" aria-selected="false">Simular</button>
+        </div>
+
+        <div class="tb-spacer"></div>
+
+        <div class="tb-actions">
+          <button class="btn" id="treeBtn" title="Árbol de rutas y exportación a PDF">
+            <span class="ic-slot" data-ic="tree"></span><span class="tb-label">Árbol</span>
+          </button>
+          <button class="btn" id="analyzeBtn" title="Analizar la jugada contra todas tus defensas">
+            <span class="ic-slot" data-ic="chart"></span><span class="tb-label">Analizar</span>
+          </button>
+          <button class="btn" id="exportBtn" title="Exportar imagen, JSON o enlace">
+            <span class="ic-slot" data-ic="download"></span><span class="tb-label">Exportar</span>
+          </button>
+          <button class="btn" id="printBtn" title="Muñequeras y hojas de jugadas">
+            <span class="ic-slot" data-ic="printer"></span><span class="tb-label">Imprimir</span>
+          </button>
+          <button class="btn icon ghost" id="menuBtn" title="Más opciones" aria-label="Más opciones"></button>
+          <button class="btn icon ghost" id="helpBtn" title="Ayuda y atajos" aria-label="Ayuda"></button>
+        </div>
+
+        <button class="btn icon ghost only-mobile" id="libToggleBtn" title="Libreta" aria-label="Abrir libreta"></button>
+        <button class="btn icon ghost only-mobile" id="inspToggleBtn" title="Propiedades" aria-label="Abrir propiedades"></button>
+      </header>
+
+      <!-- SECCIONES -->
+      <nav class="app-nav" id="appNav" aria-label="Secciones de la aplicación">
+        <button class="nav-tab is-active" data-section="plays" aria-current="page" title="Jugadas (Ctrl+1)">
+          <span class="ic-slot" data-ic="grid"></span><span class="nav-label">Jugadas</span>
+        </button>
+        <button class="nav-tab" data-section="routes" title="Rutas (Ctrl+2)">
+          <span class="ic-slot" data-ic="route"></span><span class="nav-label">Rutas</span>
+        </button>
+        <button class="nav-tab" data-section="catalog" title="Catálogo de jugadas (Ctrl+5)">
+          <span class="ic-slot" data-ic="grid"></span><span class="nav-label">Catálogo</span>
+        </button>
+        <button class="nav-tab" data-section="tree" title="Árbol de rutas (Ctrl+3)">
+          <span class="ic-slot" data-ic="tree"></span><span class="nav-label">Árbol</span>
+        </button>
+        <button class="nav-tab" data-section="wrist" title="Muñequeras (Ctrl+4)">
+          <span class="ic-slot" data-ic="printer"></span><span class="nav-label">Muñequeras</span>
+        </button>
+        <div class="nav-spacer"></div>
+        <div class="nav-context" id="navContext"></div>
+      </nav>
+
+      <!-- CUERPO -->
+      <main class="workspace">
+        <aside class="sidebar" id="sidebar" aria-label="Libreta de jugadas">
+          <div id="sidebarRoot" class="sidebar-root"></div>
+        </aside>
+
+        <section class="canvas-area" aria-label="Campo de juego">
+          <div class="canvas-tools" id="canvasTools" role="toolbar" aria-label="Herramientas del campo"></div>
+          <div class="stage" id="stage">
+            <svg id="fieldSvg" xmlns="http://www.w3.org/2000/svg" role="application" aria-label="Editor de jugada"></svg>
+            <div class="stage-empty" id="stageEmpty" hidden></div>
+          </div>
+          <div class="timeline" id="timeline" hidden></div>
+        </section>
+
+        <aside class="inspector" id="inspector" aria-label="Propiedades">
+          <div id="inspectorRoot" class="inspector-root"></div>
+        </aside>
+      </main>
+    </div>
+
+    <div id="print-root" aria-hidden="true"></div>
+    <div id="live-region" class="sr-only" role="status" aria-live="polite"></div>
+    <pre id="boot-errors" hidden></pre>
+
+    <noscript>
+      <div class="noscript">FlagPlays necesita JavaScript activado para funcionar.</div>
+    </noscript>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

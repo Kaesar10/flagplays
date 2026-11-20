@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fondo del splash: color de la app + icono centrado.
+     Se usa ic_launcher_foreground (PNG en todas las densidades) porque dentro de
+     <bitmap> no vale un drawable XML como el icono adaptativo de mipmap-anydpi-v26. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/flagplays_bg" />
+    <item
+        android:gravity="center"
+        android:width="96dp"
+        android:height="96dp">
+        <bitmap
+            android:gravity="fill"
+            android:src="@mipmap/ic_launcher_foreground" />
+    </item>
+</layer-list>

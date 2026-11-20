@@ -1,0 +1,805 @@
+/* ============================================================================
+   FlagPlays — styles/catalog.css
+   Sección «Catálogo»: filtros, rejilla de tarjetas y detalle de la jugada.
+   Solo clases con prefijo «cat-». Tokens y componentes de base.css/app.css.
+   ========================================================================== */
+
+/* ============================ CONTENEDOR ============================ */
+.cat-shell {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: var(--h-top) minmax(0, 1fr);
+  overflow: hidden;
+  background: var(--bg-0);
+  color: var(--tx-0);
+}
+
+/* ============================ BARRA SUPERIOR ============================ */
+.cat-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 0 12px;
+  background: var(--bg-1);
+  border-bottom: 1px solid var(--line);
+}
+
+.cat-back {
+  flex: none;
+}
+
+.cat-ident {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cat-title {
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.cat-count {
+  font-size: 10.5px;
+  color: var(--tx-3);
+  white-space: nowrap;
+}
+
+.cat-top-spacer {
+  flex: 1;
+  min-width: 6px;
+}
+
+.cat-clear {
+  flex: none;
+  font-size: 11.5px;
+  color: var(--warn);
+}
+
+.cat-clear:hover {
+  color: var(--warn);
+  background: rgba(255, 201, 77, 0.08);
+}
+
+.cat-search {
+  position: relative;
+  width: 260px;
+  flex: none;
+}
+
+.cat-search-ic {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  color: var(--tx-3);
+  pointer-events: none;
+}
+
+.cat-search-input {
+  width: 100%;
+  height: 31px;
+  padding-left: 29px;
+}
+
+.cat-search-input::placeholder {
+  color: var(--tx-3);
+}
+
+/* Conmutador de paneles: solo móvil. */
+.cat-tabs {
+  display: none;
+}
+
+/* ============================ REJILLA ============================ */
+.cat-body {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr) 320px;
+  min-height: 0;
+}
+
+/* ============================ FILTROS ============================ */
+.cat-side {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--bg-1);
+  border-right: 1px solid var(--line);
+}
+
+.cat-side-head {
+  padding: 10px 12px 9px;
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+
+.cat-summary {
+  font-size: 11.5px;
+  color: var(--tx-2);
+}
+
+.cat-summary b {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.cat-summary-total {
+  color: var(--tx-3);
+}
+
+.cat-facets {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cat-facet {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cat-facet-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-height: 16px;
+}
+
+.cat-facet-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tx-3);
+}
+
+.cat-facet-clear {
+  margin-left: auto;
+  padding: 0;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent);
+  background: none;
+}
+
+.cat-facet-clear:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.cat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--tx-2);
+  background: var(--bg-2);
+  border: 1px solid transparent;
+  border-radius: var(--r-full);
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  white-space: nowrap;
+}
+
+.cat-chip:hover {
+  color: var(--tx-1);
+  background: var(--bg-3);
+}
+
+.cat-chip.is-active {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+  font-weight: 650;
+}
+
+.cat-chip-count {
+  font-size: 9.5px;
+  color: var(--tx-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.cat-chip.is-active .cat-chip-count {
+  color: rgba(10, 18, 6, 0.66);
+}
+
+/* ============================ REJILLA DE JUGADAS ============================ */
+.cat-results {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--bg-0);
+}
+
+.cat-grid {
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(228px, 1fr));
+  align-content: start;
+  gap: 12px;
+  padding: 12px;
+}
+
+.cat-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.cat-card:hover {
+  background: var(--bg-2);
+  border-color: var(--line-2);
+}
+
+.cat-card.is-active {
+  border-color: var(--accent);
+  background: var(--bg-2);
+  box-shadow: inset 0 0 0 1px rgba(154, 230, 63, 0.28);
+}
+
+.cat-thumb {
+  display: block;
+  width: 100%;
+  height: 116px;
+  background: #070d10;
+  border-bottom: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.cat-thumb svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ct-field {
+  fill: #0b1116;
+  stroke: rgba(238, 246, 242, 0.09);
+  stroke-width: 0.8;
+}
+
+.ct-los {
+  stroke: rgba(238, 246, 242, 0.4);
+  stroke-width: 1;
+  stroke-dasharray: 3 2.5;
+}
+
+.ct-route {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.92;
+}
+
+.ct-run {
+  stroke-dasharray: 3 2;
+}
+
+.ct-player {
+  fill: var(--tx-2);
+}
+
+.ct-target {
+  fill: var(--accent);
+}
+
+.ct-target-ring {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  opacity: 0.8;
+}
+
+.cat-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 9px 10px 10px;
+}
+
+.cat-card-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--tx-0);
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cat-card-formation {
+  font-size: 10.5px;
+  color: var(--tx-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cat-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 3px;
+}
+
+.cat-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 17px;
+  padding: 0 6px;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--tx-2);
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+  white-space: nowrap;
+}
+
+.cat-tag-vs {
+  color: var(--info);
+  background: rgba(99, 200, 255, 0.08);
+  border-color: rgba(99, 200, 255, 0.24);
+}
+
+.cat-tag-soft {
+  color: var(--tx-2);
+  background: transparent;
+  border-color: var(--line);
+}
+
+.cat-tag-strong {
+  color: var(--accent);
+  background: rgba(154, 230, 63, 0.08);
+  border-color: rgba(154, 230, 63, 0.26);
+}
+
+/* ============================ DETALLE ============================ */
+.cat-detail {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--bg-1);
+  border-left: 1px solid var(--line);
+}
+
+.cat-detail-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 14px 18px;
+}
+
+.cat-detail-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cat-detail-name {
+  font-size: 20px;
+  font-weight: 750;
+  letter-spacing: 0.005em;
+  line-height: 1.15;
+  color: var(--tx-0);
+  text-transform: uppercase;
+}
+
+.cat-detail-formation {
+  font-size: 11.5px;
+  color: var(--tx-2);
+}
+
+.cat-detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.cat-detail-tags .cat-tag {
+  height: 19px;
+  padding: 0 7px;
+  font-size: 10px;
+}
+
+.cat-in-library {
+  font-size: 11px;
+}
+
+.cat-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 9px 10px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
+  border-radius: var(--r-sm);
+}
+
+.cat-block-tip {
+  border-left-color: var(--info);
+}
+
+.cat-block-when {
+  border-left-color: var(--warn);
+}
+
+.cat-block-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tx-3);
+}
+
+.cat-block-text {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--tx-1);
+}
+
+.cat-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.cat-action {
+  width: 100%;
+  justify-content: center;
+  height: 32px;
+}
+
+.cat-action-add {
+  height: 34px;
+}
+
+/* ============================ ESTADOS VACÍOS ============================ */
+.cat-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 260px;
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--tx-3);
+}
+
+.cat-empty-ic {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--tx-3);
+}
+
+.cat-empty-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tx-1);
+}
+
+.cat-empty-text {
+  max-width: 250px;
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.cat-empty-btn {
+  margin-top: 4px;
+  height: 30px;
+}
+
+.cat-detail-empty {
+  min-height: 100%;
+  flex: 1;
+}
+
+/* ============================ MÓVIL (≤ 900 px) ============================ */
+@media (max-width: 900px) {
+  .cat-shell {
+    --cat-top-h: 48px;
+    --cat-tabs-h: 50px;
+    grid-template-rows: var(--cat-top-h) var(--cat-tabs-h) minmax(0, 1fr);
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .cat-shell * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .cat-shell button,
+  .cat-shell input {
+    touch-action: manipulation;
+  }
+
+  .cat-top {
+    gap: 6px;
+    padding: 0 8px;
+  }
+
+  .cat-back,
+  .cat-clear {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    justify-content: center;
+    flex: none;
+  }
+
+  .cat-back span,
+  .cat-clear span {
+    display: none;
+  }
+
+  .cat-title {
+    font-size: 15px;
+  }
+
+  .cat-count {
+    display: none;
+  }
+
+  .cat-top-spacer {
+    display: none;
+  }
+
+  .cat-search {
+    width: auto;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cat-search-input {
+    height: 44px;
+    font-size: 13px;
+  }
+
+  .cat-tabs {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px 8px;
+    background: var(--bg-1);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .cat-tab {
+    flex: 1;
+    min-width: 0;
+    height: 44px;
+    padding: 0 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--tx-2);
+    border-radius: var(--r-sm);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cat-tab.is-active {
+    color: var(--accent);
+    background: var(--bg-3);
+    box-shadow: inset 0 0 0 1px rgba(154, 230, 63, 0.2);
+  }
+
+  .cat-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .cat-side,
+  .cat-results,
+  .cat-detail {
+    display: none;
+    width: auto;
+    min-height: 0;
+    border: 0;
+  }
+
+  .cat-shell[data-panel="filters"] .cat-side,
+  .cat-shell[data-panel="results"] .cat-results,
+  .cat-shell[data-panel="detail"] .cat-detail {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .cat-side-head {
+    padding: 10px 12px 9px;
+  }
+
+  .cat-summary {
+    font-size: 12.5px;
+  }
+
+  .cat-facets {
+    padding: 6px 12px 16px;
+    gap: 14px;
+  }
+
+  .cat-facet-title {
+    font-size: 11px;
+  }
+
+  .cat-facet-clear {
+    font-size: 11px;
+    padding: 6px 4px;
+  }
+
+  .cat-chip {
+    min-height: 44px;
+    height: auto;
+    padding: 0 13px;
+    font-size: 12px;
+    border-radius: var(--r-full);
+  }
+
+  .cat-chip-count {
+    font-size: 10.5px;
+  }
+
+  .cat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .cat-thumb {
+    height: 92px;
+  }
+
+  .cat-card-body {
+    gap: 2px;
+    padding: 8px 9px 9px;
+  }
+
+  .cat-card-name {
+    font-size: 12px;
+  }
+
+  .cat-card-formation {
+    font-size: 10px;
+  }
+
+  .cat-tag {
+    font-size: 9px;
+    height: 16px;
+    padding: 0 5px;
+  }
+
+  .cat-detail-scroll {
+    padding: 12px 12px 16px;
+    gap: 11px;
+  }
+
+  .cat-detail-name {
+    font-size: 19px;
+  }
+
+  .cat-block-text {
+    font-size: 12.5px;
+  }
+
+  .cat-action {
+    min-height: 44px;
+    font-size: 12.5px;
+  }
+
+  .cat-empty {
+    min-height: 200px;
+    padding: 28px 20px;
+  }
+
+  .cat-empty-btn {
+    min-height: 44px;
+    font-size: 12.5px;
+  }
+}
+
+/* ============================ MÓVIL EN PAISAJE ============================ */
+@media (max-width: 900px) and (max-height: 500px) {
+  .cat-shell {
+    --cat-top-h: 44px;
+    --cat-tabs-h: 36px;
+  }
+
+  .cat-top {
+    padding: 0 6px;
+  }
+
+  .cat-tabs {
+    padding: 2px 8px;
+  }
+
+  .cat-tab {
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .cat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .cat-thumb {
+    height: 76px;
+  }
+
+  .cat-facets {
+    gap: 9px;
+  }
+
+  .cat-detail-scroll {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .cat-action {
+    min-height: 38px;
+  }
+}
+
+
+
+/* Nombre anterior de la jugada (el del playbook del club) */
+.cat-detail-original {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--tx-3);
+  font-style: italic;
+}

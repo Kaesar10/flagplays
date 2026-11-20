@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FlagPlays</string>
+    <string name="back_exit">Pulsa atrás otra vez para salir</string>
+    <string name="save_ok">Guardado en Descargas: %1$s</string>
+    <string name="save_private">Guardado en la carpeta de la app: %1$s</string>
+    <string name="save_failed">No se pudo guardar el fichero</string>
+    <string name="save_no_data">No hay datos para guardar</string>
+    <string name="print_unavailable">No se pudo abrir la impresión</string>
+    <string name="print_empty">No hay nada que imprimir</string>
+    <string name="share_chooser">Compartir con…</string>
+    <string name="share_file_chooser">Compartir fichero</string>
+    <string name="no_link_handler">No hay ninguna app para abrir el enlace</string>
+</resources>
