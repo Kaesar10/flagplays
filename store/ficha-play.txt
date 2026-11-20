@@ -1,0 +1,63 @@
+FICHA DE GOOGLE PLAY · FlagPlays
+============================================================
+
+NOMBRE DE LA APLICACIÓN (9/30)
+------------------------------------------------------------
+FlagPlays
+
+DESCRIPCIÓN BREVE (73/80)
+------------------------------------------------------------
+Pizarra de jugadas de flag football: dibuja, anima y exporta tu playbook.
+
+DESCRIPCIÓN COMPLETA (1545/4000)
+------------------------------------------------------------
+FlagPlays es la libreta y la pizarra de jugadas de tu equipo de flag football, pensada para entrenadores y jugadores de 5 contra 5 y 7 contra 7.
+
+DIBUJA TUS JUGADAS
+Arrastra a los jugadores, traza las rutas punto a punto, coloca la defensa y guarda la jugada en tu libreta. Cada jugador puede tener su color y su forma, y el campo se adapta a 5v5 o 7v7.
+
+ANIMA Y SIMULA
+Reproduce la jugada con el balón en movimiento, a la velocidad que quieras. El simulador te dice si la jugada es completa, incompleta o interceptada, y el análisis te explica los motivos y compara lecturas.
+
+CATÁLOGO DE JUGADAS
+Más de 100 jugadas listas para usar, filtradas por tipo (pase o carrera), distancia, zona que atacan, formación, situación (campo o zona roja) y contra qué defensa funcionan. Puedes añadirlas a tu libreta y editarlas a tu gusto.
+
+ÁRBOL DE RUTAS
+Monta el árbol de rutas del equipo, reordena los nodos arrastrando, cambia la jerarquía y edita cada ruta sobre el propio diagrama. Se exporta a PDF.
+
+MUÑEQUERAS Y HOJAS DE JUGADAS
+Genera muñequeras con el tamaño exacto que necesites, en centímetros, eligiendo columnas y filas. Cada celda lleva su jugada, escalada al tamaño de la celda. También hojas de jugadas, tarjetas de bolsillo y call sheet del entrenador, todo imprimible o en PDF.
+
+SIN CONEXIÓN Y SIN CUENTAS
+No hay registro, no hay publicidad y no se envía nada a ningún servidor: tus jugadas se quedan en tu dispositivo. La aplicación funciona íntegramente sin conexión a internet.
+
+La misma aplicación está disponible también para Windows.
+
+RECURSOS VISUALES
+------------------------------------------------------------
+Icono de la app: store/icono-512.png  (512 x 512 px, PNG 32 bits, sin transparencia)
+Gráfico destacado: store/grafico-destacado-1024x500.png  (1024 x 500 px, PNG o JPG)
+Captura de teléfono 1: store/captura-1-editor.png  (1080 x 1920 px, ratio 9:16)
+Captura de teléfono 2: store/captura-2-animacion.png  (1080 x 1920 px, ratio 9:16)
+
+DATOS DE LA FICHA
+------------------------------------------------------------
+Categoría: Deportes
+Etiquetas: flag football, deportes, entrenador, playbook
+Correo de contacto: kaesar10@gmail.com
+Sitio web: https://kaesar10.github.io/flagplays/
+Política de privacidad: https://kaesar10.github.io/flagplays/privacidad.html
+
+NOTAS DE LA VERSIÓN (141/500)
+------------------------------------------------------------
+Primera versión: editor de jugadas, animación y simulador, catálogo de 104
+jugadas, árbol de rutas y muñequeras configurables en centímetros.
+
+RESPUESTAS A LOS FORMULARIOS
+------------------------------------------------------------
+Seguridad de los datos: no se recopilan ni comparten datos de usuario.
+Clasificación de contenido: Deportes/Utilidades, sin violencia ni contenido sensible.
+Público objetivo: 13 años o más (herramienta para entrenadores).
+Anuncios: no contiene anuncios.
+Compras dentro de la app: no.
+Acceso: todas las funciones disponibles sin iniciar sesión.

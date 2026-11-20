@@ -483,8 +483,13 @@ if (-not ($Badging | Where-Object { "$_" -match "^package: name='com\.flagplays\
 if (-not ($Badging | Where-Object { "$_" -match "^minSdkVersion:'24'" })) {
     Fail "minSdk no es 24 en el APK"
 }
-if (-not ($Badging | Where-Object { "$_" -match "^targetSdkVersion:'35'" })) {
-    Fail "targetSdk no es 35 en el APK"
+# El targetSdk se valida contra el del manifiesto (Play sube el minimo cada ano).
+$TargetEsperado = '36'
+if (Select-String -Path $Manifest -Pattern 'targetSdkVersion="(\d+)"' -Quiet) {
+    $TargetEsperado = (Select-String -Path $Manifest -Pattern 'targetSdkVersion="(\d+)"').Matches[0].Groups[1].Value
+}
+if (-not ($Badging | Where-Object { "$_" -match "^targetSdkVersion:'$TargetEsperado'" })) {
+    Fail "targetSdk del APK no coincide con el manifiesto ($TargetEsperado)"
 }
 if (-not ($Badging | Where-Object { "$_" -match "^application-label:'FlagPlays'" })) {
     Fail "El label de la app no es FlagPlays"
