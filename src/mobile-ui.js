@@ -17,11 +17,11 @@ let sheetOpen = false;
 
 /** Secciones y acciones del menú desplegable (☰). */
 const SECCIONES = [
-  { id: 'plays', label: 'Jugadas', icon: 'grid' },
-  { id: 'catalog', label: 'Catálogo', icon: 'grid' },
-  { id: 'routes', label: 'Rutas', icon: 'route' },
-  { id: 'tree', label: 'Árbol', icon: 'tree' },
-  { id: 'wrist', label: 'Muñequeras', icon: 'printer' },
+  { id: 'plays', label: 'Jugadas', icon: 's-grid' },
+  { id: 'catalog', label: 'Catálogo', icon: 's-catalog' },
+  { id: 'routes', label: 'Rutas', icon: 's-routes' },
+  { id: 'tree', label: 'Árbol', icon: 's-tree' },
+  { id: 'wrist', label: 'Muñequeras', icon: 's-wrist' },
 ];
 
 const ACCIONES = [

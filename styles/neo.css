@@ -127,14 +127,9 @@ body {
   color: var(--tx-3);
   transition: color 0.14s ease, background 0.14s ease, border-color 0.14s ease;
 }
+/* Los iconos ya llevan el color de su sección: el punto sobraba. */
 #appNav .nav-tab::before {
-  content: '';
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0.5;
-  flex: none;
+  display: none;
 }
 #appNav .nav-tab:hover {
   color: var(--tx-1);
@@ -498,4 +493,75 @@ body {
 }
 .pi-meta .type-dot.is-def {
   background: #ff8a6a;
+}
+
+
+/* ============================================================================
+   ICONOS Y CABECERAS DE SECCIÓN
+   ============================================================================ */
+/* Iconos un poco más grandes donde manda la jerarquía */
+#appNav .nav-tab .ic-slot svg {
+  width: 18px;
+  height: 18px;
+}
+.msheet-sec-ic svg {
+  width: 24px;
+  height: 24px;
+}
+.canvas-tools .tool-btn svg,
+.tool-btn .ic {
+  width: 17px;
+  height: 17px;
+}
+
+/* Títulos de sección con más peso: son la referencia de dónde estás */
+.rt-title,
+.cat-title,
+.pr-title,
+.tree-title {
+  font-size: 19px !important;
+  font-weight: 780 !important;
+  letter-spacing: -0.018em;
+  color: var(--tx-0);
+}
+
+/* Filete de color bajo el título de la sección */
+.cat-ident,
+.rt-top > .rt-title,
+.rt-top {
+  position: relative;
+}
+.cat-ident::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 34px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--sec);
+}
+
+/* Cabecera de sección con su tinte: banda suave sobre el color propio */
+.section-overlay .cat-top,
+.section-overlay .rt-top,
+.section-overlay .tree-top,
+.section-overlay .pr-head {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0)),
+    var(--bg-1);
+  border-bottom: 1px solid var(--glass-line);
+}
+.section-overlay .rt-title,
+.section-overlay .cat-title,
+.section-overlay .tree-title {
+  text-shadow: 0 0 22px rgba(0, 0, 0, 0.35);
+}
+
+/* Etiquetas de estado de la cabecera (guardado, contador) más legibles */
+.section-overlay .rt-saved,
+.section-overlay .cat-count,
+.section-overlay .tree-count {
+  font-size: 12px;
+  font-weight: 600;
 }

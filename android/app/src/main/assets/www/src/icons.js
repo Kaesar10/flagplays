@@ -1,5 +1,25 @@
 // Iconos SVG inline (trazo, 24x24). Sin dependencias.
 const P = {
+  /* --- iconos de sección (rellenos, para la barra y el menú) --- */
+  's-grid': {
+    fill: true,
+    d: '<rect x="3" y="3" width="7.6" height="7.6" rx="2.2"/><rect x="13.4" y="3" width="7.6" height="7.6" rx="2.2"/><rect x="3" y="13.4" width="7.6" height="7.6" rx="2.2"/><rect x="13.4" y="13.4" width="7.6" height="7.6" rx="2.2"/>',
+  },
+  's-catalog': {
+    fill: true,
+    d: '<rect x="3" y="7.4" width="13.6" height="13.6" rx="3"/><path d="M8 3.4h9.4a3.2 3.2 0 0 1 3.2 3.2V16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>',
+  },
+  's-routes': {
+    d: '<path d="M4.4 19.6c0-5.6 3.4-6.4 7.2-8.8l4-2.6" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/><circle cx="4.4" cy="19.6" r="2.6" fill="currentColor" stroke="none"/><path d="M12.6 5.2h6.2v6.2" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>',
+  },
+  's-tree': {
+    fill: true,
+    d: '<circle cx="12" cy="4.6" r="2.8"/><circle cx="5" cy="19.4" r="2.8"/><circle cx="19" cy="19.4" r="2.8"/><path d="M12 7.6v4.2M5 16.4v-2.2h14v2.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
+  },
+  's-wrist': {
+    fill: true,
+    d: '<rect x="5.6" y="6.4" width="12.8" height="11.2" rx="4"/><path d="M9.4 3.2h5.2M9.4 20.8h5.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
+  },
   play: { d: '<polygon points="6 3 20 12 6 21 6 3"/>', fill: true },
   pause: { d: '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>', fill: true },
   stop: { d: '<rect x="5" y="5" width="14" height="14" rx="2"/>', fill: true },
@@ -113,7 +133,7 @@ export const ICON_NAMES = Object.keys(P);
 export function icon(name, opts = {}) {
   const def = P[name] || P.info;
   const size = opts.size || 16;
-  const sw = opts.strokeWidth || 2;
+  const sw = opts.strokeWidth || 2.15;
   const fill = def.fill ? 'currentColor' : 'none';
   return `<svg class="ic ${opts.cls || ''}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${fill}" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${def.d}</svg>`;
 }
