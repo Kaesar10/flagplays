@@ -795,6 +795,8 @@ function openHelp() {
 const SECTIONS = ['plays', 'catalog', 'routes', 'tree', 'wrist'];
 
 function setNavActive(section) {
+  // La sección activa tiñe la app (halo de fondo y acentos): styles/neo.css.
+  if (document.body) document.body.dataset.section = section;
   for (const btn of document.querySelectorAll('#appNav .nav-tab')) {
     const active = btn.dataset.section === section;
     btn.classList.toggle('is-active', active);

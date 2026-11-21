@@ -1,0 +1,434 @@
+/* ============================================================================
+   NEO-TURF · piel 2026
+   Capa de acabado: no cambia estructura ni comportamiento, solo el aspecto.
+   Se carga la última para mandar sobre base.css y app.css.
+
+   Idea: grafito con halos de color, superficies de cristal y un color por
+   sección. El truco es redefinir --accent dentro de cada sección: todo lo que
+   ya usaba el acento (botones, chips, pestañas activas, focos) se tiñe solo.
+   ============================================================================ */
+
+:root {
+  /* Un color por sección: el mapa mental de la app */
+  --sec-plays: #b4f13f;
+  --sec-routes: #45d9e8;
+  --sec-catalog: #a78bfa;
+  --sec-tree: #ffb020;
+  --sec-wrist: #ff6b9a;
+
+  /* Superficies de cristal */
+  --glass: rgba(255, 255, 255, 0.045);
+  --glass-2: rgba(255, 255, 255, 0.075);
+  --glass-3: rgba(255, 255, 255, 0.11);
+  --glass-line: rgba(255, 255, 255, 0.09);
+
+  --r-xl: 18px;
+  --r-card: 13px;
+  --r-pill: 11px;
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --shadow-lift: 0 18px 46px rgba(0, 0, 0, 0.55);
+  --accent-grad: linear-gradient(140deg, #c9fa52, #8ed12e);
+  --accent-glow: rgba(180, 241, 63, 0.24);
+
+  /* La sección activa tiñe el fondo y los acentos */
+  --sec: var(--sec-plays);
+  --sec-halo: rgba(180, 241, 63, 0.16);
+}
+
+/* ---------- sección activa ---------- */
+body[data-section='plays'] {
+  --sec: var(--sec-plays);
+  --sec-halo: rgba(180, 241, 63, 0.16);
+}
+body[data-section='routes'] {
+  --sec: var(--sec-routes);
+  --sec-halo: rgba(69, 217, 232, 0.15);
+  --accent: var(--sec-routes);
+  --accent-dim: #2a9aa6;
+  --accent-grad: linear-gradient(140deg, #7ceef8, #26b9c6);
+  --accent-glow: rgba(69, 217, 232, 0.24);
+}
+body[data-section='catalog'] {
+  --sec: var(--sec-catalog);
+  --sec-halo: rgba(167, 139, 250, 0.16);
+  --accent: var(--sec-catalog);
+  --accent-dim: #7c62d8;
+  --accent-grad: linear-gradient(140deg, #c9b8ff, #8b6ce8);
+  --accent-glow: rgba(167, 139, 250, 0.26);
+}
+body[data-section='tree'] {
+  --sec: var(--sec-tree);
+  --sec-halo: rgba(255, 176, 32, 0.15);
+  --accent: var(--sec-tree);
+  --accent-dim: #cc8a10;
+  --accent-grad: linear-gradient(140deg, #ffd27a, #e09a10);
+  --accent-glow: rgba(255, 176, 32, 0.24);
+}
+body[data-section='wrist'] {
+  --sec: var(--sec-wrist);
+  --sec-halo: rgba(255, 107, 154, 0.15);
+  --accent: var(--sec-wrist);
+  --accent-dim: #cc4f79;
+  --accent-grad: linear-gradient(140deg, #ffa6c3, #e0517f);
+  --accent-glow: rgba(255, 107, 154, 0.26);
+}
+
+/* ---------- atmósfera ---------- */
+body {
+  background:
+    radial-gradient(58% 38% at 10% -8%, var(--sec-halo), transparent 68%),
+    radial-gradient(46% 32% at 92% -10%, rgba(167, 139, 250, 0.1), transparent 70%),
+    radial-gradient(40% 28% at 60% -14%, rgba(69, 217, 232, 0.08), transparent 72%),
+    var(--bg-0);
+  background-attachment: fixed;
+}
+
+/* ---------- barra superior de cristal ---------- */
+.topbar {
+  background: rgba(12, 17, 21, 0.72);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border-bottom: 1px solid var(--glass-line);
+}
+
+.brand-mark {
+  background: var(--accent-grad);
+  color: #08120a;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px var(--accent-glow);
+}
+.brand-mark svg path[stroke='#f0fbf4'],
+.brand-mark svg circle[fill='#f0fbf4'] {
+  stroke: #08120a;
+  fill: #08120a;
+}
+.brand-name {
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+
+.playbook-chip {
+  background: var(--glass);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--r-pill);
+}
+
+/* ---------- navegación con color por sección ---------- */
+#appNav {
+  background: rgba(10, 15, 18, 0.55);
+  border-bottom: 1px solid var(--glass-line);
+}
+
+#appNav .nav-tab {
+  position: relative;
+  gap: 8px;
+  border-radius: var(--r-pill);
+  border: 1px solid transparent;
+  color: var(--tx-3);
+  transition: color 0.14s ease, background 0.14s ease, border-color 0.14s ease;
+}
+#appNav .nav-tab::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+  flex: none;
+}
+#appNav .nav-tab:hover {
+  color: var(--tx-1);
+  background: var(--glass);
+}
+
+#appNav .nav-tab[data-section='plays']::before {
+  background: var(--sec-plays);
+}
+#appNav .nav-tab[data-section='routes']::before {
+  background: var(--sec-routes);
+}
+#appNav .nav-tab[data-section='catalog']::before {
+  background: var(--sec-catalog);
+}
+#appNav .nav-tab[data-section='tree']::before {
+  background: var(--sec-tree);
+}
+#appNav .nav-tab[data-section='wrist']::before {
+  background: var(--sec-wrist);
+}
+
+#appNav .nav-tab[data-section='plays'].is-active {
+  color: var(--sec-plays);
+  background: rgba(180, 241, 63, 0.12);
+  border-color: rgba(180, 241, 63, 0.38);
+}
+#appNav .nav-tab[data-section='routes'].is-active {
+  color: var(--sec-routes);
+  background: rgba(69, 217, 232, 0.12);
+  border-color: rgba(69, 217, 232, 0.38);
+}
+#appNav .nav-tab[data-section='catalog'].is-active {
+  color: var(--sec-catalog);
+  background: rgba(167, 139, 250, 0.14);
+  border-color: rgba(167, 139, 250, 0.42);
+}
+#appNav .nav-tab[data-section='tree'].is-active {
+  color: var(--sec-tree);
+  background: rgba(255, 176, 32, 0.13);
+  border-color: rgba(255, 176, 32, 0.4);
+}
+#appNav .nav-tab[data-section='wrist'].is-active {
+  color: var(--sec-wrist);
+  background: rgba(255, 107, 154, 0.13);
+  border-color: rgba(255, 107, 154, 0.4);
+}
+#appNav .nav-tab.is-active::before {
+  opacity: 1;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+}
+
+/* ---------- controles ---------- */
+.btn {
+  border-radius: var(--r-pill);
+  border-color: var(--glass-line);
+  transition: background 0.14s ease, border-color 0.14s ease, transform 0.1s ease;
+}
+.btn:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn.primary,
+.btn.is-primary {
+  background: var(--accent-grad);
+  color: #08120a;
+  border-color: transparent;
+  font-weight: 750;
+  box-shadow: 0 6px 18px var(--accent-glow);
+}
+
+.segmented {
+  background: var(--glass);
+  border: 1px solid var(--glass-line);
+  border-radius: 999px;
+}
+.segmented .seg {
+  border-radius: 999px;
+  color: var(--tx-3);
+  font-weight: 650;
+  transition: color 0.14s ease;
+}
+.segmented .seg.is-active {
+  background: var(--accent-grad);
+  color: #08120a;
+  font-weight: 750;
+  box-shadow: 0 2px 10px var(--accent-glow);
+}
+
+.tool-btn {
+  border-radius: var(--r-pill);
+  border: 1px solid var(--glass-line);
+  background: var(--glass);
+  color: var(--tx-2);
+}
+
+/* Las herramientas conmutadas se insinúan; solo la elegida se enciende del todo.
+   Si no, con tantas activas por defecto la barra parecía una feria. */
+.tool-btn[aria-pressed='true'] {
+  color: var(--accent);
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  font-weight: 650;
+}
+.tool-btn.is-active {
+  background: var(--accent-grad);
+  color: #08120a;
+  border-color: transparent;
+  font-weight: 750;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+.tool-btn.is-active svg {
+  color: #08120a;
+}
+
+/* ---------- paneles ---------- */
+.sidebar,
+.inspector {
+  background: rgba(11, 17, 21, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-color: var(--glass-line);
+}
+
+.sb-title,
+.insp-head {
+  letter-spacing: 0.13em;
+}
+
+/* ---------- tarjetas ---------- */
+.play-item,
+.cat-card,
+.route-card,
+.tree-card {
+  border-radius: var(--r-card);
+  transition: background 0.14s ease, border-color 0.14s ease, transform 0.12s ease;
+}
+.play-item:hover,
+.cat-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+.play-item.is-active,
+.cat-card.is-active {
+  background: var(--glass-2);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent) inset, var(--shadow-soft);
+}
+.play-item.is-active .pi-name,
+.cat-card.is-active .cat-card-name {
+  color: var(--accent);
+}
+
+.cat-thumb,
+.pi-thumb {
+  border-radius: calc(var(--r-card) - 4px);
+}
+
+/* ---------- cronología ---------- */
+.timeline {
+  background: rgba(10, 15, 18, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid var(--glass-line);
+}
+.tl-play {
+  background: var(--accent-grad);
+  color: #08120a;
+  box-shadow: 0 6px 18px var(--accent-glow);
+}
+
+/* ---------- secciones a pantalla completa ---------- */
+.section-overlay {
+  background: var(--bg-0);
+}
+/* Filo de color de la sección en la cabecera */
+.section-overlay::before {
+  content: '';
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: block;
+  height: 3px;
+  background: linear-gradient(90deg, var(--sec), transparent 85%);
+}
+
+/* ---------- focos y detalles ---------- */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+::selection {
+  background: var(--accent);
+  color: #08120a;
+}
+
+/* Scrollbar fina y redondeada */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+  background-clip: content-box;
+}
+
+/* Avisos y tostadas con el acento de la sección */
+.toast {
+  border-radius: var(--r-pill);
+  border: 1px solid var(--glass-line);
+  background: rgba(18, 26, 32, 0.94);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-lift);
+}
+
+/* ---------- móvil: misma piel ---------- */
+@media (max-width: 760px) {
+  .topbar {
+    background: rgba(10, 15, 18, 0.82);
+  }
+  .play-strip {
+    background: rgba(10, 15, 18, 0.72);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--glass-line);
+  }
+  .ps-card {
+    border-radius: var(--r-card);
+    border-color: var(--glass-line);
+    background: var(--glass);
+    transition: border-color 0.12s ease, background 0.12s ease;
+  }
+  .ps-card.is-active {
+    background: var(--glass-2);
+    border-color: var(--accent);
+    box-shadow: inset 0 0 0 1px var(--accent), 0 6px 18px rgba(0, 0, 0, 0.4);
+  }
+  .ps-card.is-active .ps-name {
+    color: var(--accent);
+  }
+  .tools-fab {
+    background: var(--accent-grad);
+    box-shadow: 0 8px 22px var(--accent-glow);
+  }
+  body.tools-open .canvas-tools {
+    background: rgba(14, 20, 25, 0.96);
+    backdrop-filter: blur(14px);
+    border-color: var(--glass-line);
+  }
+  .msheet {
+    background: rgba(12, 18, 22, 0.98);
+    backdrop-filter: blur(18px);
+    border-top: 1px solid var(--glass-line);
+  }
+  .msheet-sec {
+    background: var(--glass);
+    border-color: var(--glass-line);
+    border-radius: var(--r-card);
+  }
+  .msheet-sec.is-current {
+    background: var(--glass-2);
+    border-color: var(--accent);
+  }
+  .msheet-sec-ic {
+    background: var(--glass-3);
+    color: var(--accent);
+  }
+  /* cada sección con su color en la hoja del menú */
+  .msheet-sec:nth-child(1) .msheet-sec-ic {
+    color: var(--sec-plays);
+  }
+  .msheet-sec:nth-child(2) .msheet-sec-ic {
+    color: var(--sec-catalog);
+  }
+  .msheet-sec:nth-child(3) .msheet-sec-ic {
+    color: var(--sec-routes);
+  }
+  .msheet-sec:nth-child(4) .msheet-sec-ic {
+    color: var(--sec-tree);
+  }
+  .msheet-sec:nth-child(5) .msheet-sec-ic {
+    color: var(--sec-wrist);
+  }
+}
