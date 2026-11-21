@@ -84,7 +84,7 @@ export function createInspector({ root, store, presets, actions }) {
     const wrap = h('div', { class: 'player-chips' });
     const list = play.players.filter((p) => p.team === team);
     if (!list.length) {
-      wrap.append(h('span', { class: 'hint', text: 'Sin jugadores. Usa el botón + de la barra del campo.' }));
+      wrap.append(h('span', { class: 'hint', text: 'Sin jugadores' }));
     }
     for (const p of list) {
       const isSel = store.state.selection.ids.includes(p.id);
@@ -305,7 +305,7 @@ export function createInspector({ root, store, presets, actions }) {
     out.push(
       sec('off-players', 'Jugadores ofensivos', [
         chipsFor(play, 'offense'),
-        h('div', { class: 'hint', text: 'Haz clic en un jugador del campo para editar su ruta. Shift+clic para seleccionar varios.' }),
+        
       ])
     );
 
@@ -379,7 +379,7 @@ export function createInspector({ root, store, presets, actions }) {
           })
         );
       } else {
-        routeWrap.push(h('div', { class: 'hint', text: 'Cargando biblioteca de rutas…' }));
+        routeWrap.push(h('div', { class: 'hint', text: 'Cargando…' }));
       }
       const btnRow = h('div', { class: 'btn-row' });
       btnRow.append(
@@ -459,7 +459,7 @@ export function createInspector({ root, store, presets, actions }) {
               { label: 'Cobertura' }
             )
           ),
-          h('div', { class: 'hint', text: 'Sustituye los defensas actuales por la plantilla elegida.' }),
+          
         ])
       );
     }
@@ -595,7 +595,7 @@ export function createInspector({ root, store, presets, actions }) {
       out.push(sec('def-player', `Defensa · ${p.label}`, rows));
       out.push(playerStyleSection(p));
     } else {
-      out.push(h('div', { class: 'hint pad', text: 'Selecciona un defensa en el campo para editar su marcaje.' }));
+      
     }
     return out;
   }
@@ -849,7 +849,7 @@ export function createInspector({ root, store, presets, actions }) {
 
     out.push(sec('ap-theme', 'Tema del campo', [
       themeCards(),
-      h('div', { class: 'hint', text: 'El tema cambia césped, líneas, jugadores y balón a la vez. Tus colores propios se mantienen por encima del tema.' }),
+      
     ]));
 
     out.push(sec('ap-players', 'Jugadores', [
@@ -926,7 +926,7 @@ export function createInspector({ root, store, presets, actions }) {
             })
           : null
       ),
-      h('div', { class: 'hint', text: 'Selecciona uno o varios jugadores en el campo para darles color, forma o estilo de ruta propios.' }),
+      
     ]));
 
     return out;
@@ -957,7 +957,7 @@ export function createInspector({ root, store, presets, actions }) {
             })
           : null
       ),
-      h('div', { class: 'hint', text: 'El color propio manda sobre el color del equipo y del tema.' }),
+      
     ]);
   }
 

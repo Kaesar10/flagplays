@@ -210,8 +210,8 @@ export function createRoutesEditor(options = {}) {
   const readOnlyOverlay = h(
     'div',
     { class: 'rt-readonly', hidden: true },
-    h('span', { class: 'rt-readonly-tag', text: 'Plantilla de solo lectura' }),
-    h('p', { class: 'rt-readonly-text', text: 'Duplica la ruta para mover sus puntos.' }),
+    
+    
     h('button', {
       class: 'btn primary rt-readonly-btn',
       type: 'button',
@@ -227,7 +227,7 @@ export function createRoutesEditor(options = {}) {
   function updateCanvasHint() {
     const vacia = draft && !draft.builtin && !hasTravel(draft.points);
     canvasHintEl.textContent = vacia
-      ? 'Esta ruta todavía no está dibujada: arrastra los puntos (o haz clic en el lienzo) para darle recorrido'
+      ? 'Sin recorrido: arrastra un punto para dibujarla'
       : 'Arrastra los puntos · clic en la zona añade · Alt+clic o doble clic borra';
     canvasHintEl.classList.toggle('is-warning', !!vacia);
   }
@@ -823,7 +823,7 @@ export function createRoutesEditor(options = {}) {
     const builtin = !!route && route.builtin === true;
     canvasTitleEl.textContent = route ? route.name : 'Sin ruta';
     canvasSubEl.textContent = route
-      ? `${route.category || 'Sin categoría'}${builtin ? ' · plantilla de solo lectura' : ' · editable'}`
+      ? `${route.category || 'Sin categoría'}`
       : 'Selecciona o crea una ruta';
     readOnlyOverlay.hidden = !builtin;
     canvasWrap.classList.toggle('is-readonly', builtin);

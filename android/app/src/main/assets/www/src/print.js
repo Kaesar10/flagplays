@@ -894,22 +894,22 @@ export const PRINT_OUTPUT_TYPES = [
   {
     id: 'wristband',
     label: 'Muñequera',
-    desc: 'Tarjetas recortables con varias jugadas por tarjeta',
+    desc: '',
   },
   {
     id: 'sheet',
     label: 'Hoja de jugadas',
-    desc: 'Una jugada por página, con notas y anotaciones',
+    desc: '',
   },
   {
     id: 'callsheet',
     label: 'Call sheet del entrenador',
-    desc: 'Tabla de llamadas por categoría con columna «vs»',
+    desc: '',
   },
   {
     id: 'pockets',
     label: 'Tarjetas de bolsillo',
-    desc: '8 tarjetas por hoja para llevar en el bolsillo',
+    desc: '',
   },
 ];
 
@@ -957,7 +957,7 @@ const MODAL_TEMPLATE = `
     <header class="pr-head">
       <div class="pr-head-text">
         <h2 class="pr-title" id="pr-dialog-title">Imprimir material</h2>
-        <p class="pr-subtitle">Configura la salida y revisa la vista previa antes de imprimir.</p>
+        
       </div>
       <button type="button" class="pr-x" data-pr-close aria-label="Cerrar el diálogo de impresión">${ICON.close}</button>
     </header>

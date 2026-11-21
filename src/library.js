@@ -199,8 +199,7 @@ export function createLibrary({ root, store, actions }) {
         <div class="pi-main">
           <div class="pi-name">${escapeHTML(play.name)}</div>
           <div class="pi-meta">
-            <span>${escapeHTML(play.type === 'defense' ? 'Defensiva' : 'Ofensiva')}</span>
-            <span class="dot"></span>
+            <span class="type-dot ${play.type === 'defense' ? 'is-def' : 'is-off'}" title="${play.type === 'defense' ? 'Defensiva' : 'Ofensiva'}"></span>
             <span>${escapeHTML(playSubtitle(play))}</span>
           </div>
         </div>

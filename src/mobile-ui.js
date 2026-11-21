@@ -17,11 +17,11 @@ let sheetOpen = false;
 
 /** Secciones y acciones del menú desplegable (☰). */
 const SECCIONES = [
-  { id: 'plays', label: 'Jugadas', icon: 'grid', desc: 'El taller: dibuja y anima' },
-  { id: 'catalog', label: 'Catálogo', icon: 'grid', desc: '104 jugadas con filtros' },
-  { id: 'routes', label: 'Rutas', icon: 'route', desc: 'Tu biblioteca de rutas' },
-  { id: 'tree', label: 'Árbol', icon: 'tree', desc: 'Árbol de rutas del equipo' },
-  { id: 'wrist', label: 'Muñequeras', icon: 'printer', desc: 'Imprimir material' },
+  { id: 'plays', label: 'Jugadas', icon: 'grid' },
+  { id: 'catalog', label: 'Catálogo', icon: 'grid' },
+  { id: 'routes', label: 'Rutas', icon: 'route' },
+  { id: 'tree', label: 'Árbol', icon: 'tree' },
+  { id: 'wrist', label: 'Muñequeras', icon: 'printer' },
 ];
 
 const ACCIONES = [
@@ -156,8 +156,8 @@ function pintarHoja() {
             actionsRef.openSection?.(seccion.id);
           },
         },
-        h('span', { class: 'msheet-sec-ic', html: icon(seccion.icon || 'grid', { size: 22 }) }),
-        h('span', { class: 'msheet-sec-txt' }, h('b', { text: seccion.label }), h('small', { text: seccion.desc }))
+        h('span', { class: 'msheet-sec-ic', html: icon(seccion.icon || 'grid', { size: 24 }) }),
+        h('span', { class: 'msheet-sec-txt' }, h('b', { text: seccion.label }))
       )
     );
   }

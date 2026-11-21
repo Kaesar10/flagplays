@@ -418,7 +418,7 @@ export function createCatalogEditor(options = {}) {
           { class: 'cat-empty cat-detail-empty' },
           h('span', { class: 'cat-empty-ic', html: icon('route', { size: 22 }) }),
           h('span', { class: 'cat-empty-title', text: 'Selecciona una jugada' }),
-          h('span', { class: 'cat-empty-text', text: 'Elige una tarjeta del catálogo para ver la lectura, el truco y cuándo usarla.' })
+          
         )
       );
       return;
