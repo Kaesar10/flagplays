@@ -157,7 +157,14 @@ export function createLibrary({ root, store, actions }) {
       const hay = `${p.name} ${p.category} ${(p.tags || []).join(' ')} ${p.formation}`.toLowerCase();
       return hay.includes(query);
     });
-    els.count.textContent = String(book.plays.length);
+    // El contador da un pequeño salto cuando cambia (micro-interacción).
+    const nuevoTotal = String(book.plays.length);
+    if (els.count.textContent !== nuevoTotal) {
+      els.count.textContent = nuevoTotal;
+      els.count.classList.remove('is-bump');
+      void els.count.offsetWidth;
+      els.count.classList.add('is-bump');
+    }
     els.total.textContent = `${book.plays.length} jugada${book.plays.length === 1 ? '' : 's'} · guardado local`;
     els.list.innerHTML = '';
 

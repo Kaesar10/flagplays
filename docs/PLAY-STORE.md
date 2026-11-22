@@ -155,3 +155,16 @@ java -jar .cache\bundletool.jar install-apks --apks dist\FlagPlays.apks
 - Para actualizar: sube `versionCode` +1 en `android/app/src/main/AndroidManifest.xml`,
   recompila con `tools\build-aab.ps1` y sube el nuevo `.aab`.
 - El APK de `dist/` sigue siendo útil para pasar la app a mano, pero Play solo acepta `.aab`.
+
+
+## Capturas de la ficha (piel Neo-turf)
+
+Seis capturas de teléfono a 1080 x 1920 px (9:16), generadas desde la app real
+con el nuevo diseño. Orden recomendado en la ficha:
+
+1. `store/play-01-editor.png` — editor con la tira de jugadas
+2. `store/play-02-animar.png` — animación a mitad de jugada
+3. `store/play-03-simular.png` — veredicto del simulador
+4. `store/play-04-catalogo.png` — catálogo con filtros
+5. `store/play-05-rutas.png` — biblioteca de rutas
+6. `store/play-06-munequeras.png` — muñequeras y vista previa

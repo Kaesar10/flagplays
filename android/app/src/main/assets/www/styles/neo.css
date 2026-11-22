@@ -565,3 +565,123 @@ body {
   font-size: 12px;
   font-weight: 600;
 }
+
+
+/* ============================================================================
+   MICRO-INTERACCIONES
+   Movimiento corto y con intención: nada baila, todo responde.
+   ============================================================================ */
+@keyframes sec-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.995);
+  }
+}
+@keyframes field-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes bump {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.28);
+    color: var(--accent);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes saved-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(87, 217, 138, 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 7px rgba(87, 217, 138, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(87, 217, 138, 0);
+  }
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* Al abrir una sección entra con un desplazamiento mínimo */
+.section-overlay {
+  animation: sec-in 0.18s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+/* El campo aparece con un fundido al cambiar de jugada o de modo */
+.stage svg,
+#fieldSvg {
+  animation: field-in 0.2s ease-out;
+}
+
+/* Contador de jugadas: salta al cambiar */
+.sb-count {
+  display: inline-block;
+  transform-origin: center;
+}
+.sb-count.is-bump {
+  animation: bump 0.34s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+/* Estado de guardado: el check respira una vez al guardar */
+.tb-status.is-saved::before,
+.rt-saved::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ok);
+  display: inline-block;
+  margin-right: 6px;
+  animation: saved-pulse 1.6s ease-out 1;
+}
+
+/* Las pestañas activas se asientan al cambiar */
+#appNav .nav-tab.is-active {
+  animation: sec-in 0.16s ease-out;
+}
+
+/* Tostadas: suben un dedo */
+.toast {
+  animation: toast-in 0.18s ease-out;
+}
+
+/* Cualquier cambio de estado de un botón se siente */
+.btn,
+.tool-btn,
+.chip,
+.cat-chip {
+  transition:
+    background 0.14s ease,
+    border-color 0.14s ease,
+    color 0.14s ease,
+    transform 0.09s ease;
+}
+
+/* El reproductor late mientras suena */
+.tl.is-playing .tl-play {
+  animation: saved-pulse 1.4s ease-out infinite;
+}
+
+/* Menos movimiento si el sistema lo pide */
+@media (prefers-reduced-motion: reduce) {
+  .section-overlay,
+  .stage svg,
+  #fieldSvg,
+  .sb-count.is-bump,
+  .toast,
+  #appNav .nav-tab.is-active,
+  .tl.is-playing .tl-play,
+  .tb-status.is-saved::before,
+  .rt-saved::before {
+    animation: none !important;
+  }
+}
