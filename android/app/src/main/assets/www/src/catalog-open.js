@@ -81,6 +81,14 @@ export async function openCatalogEditor({ store, onEdit, onWristband, onClose } 
         onEdit?.(created);
       }
     },
+    onFolder: (item, anchor) => {
+      const created = addToBook(item);
+      if (!created) return;
+      toast(`«${item.name}» añadida a tu libreta`, 'ok', 1800);
+      import('./folder-picker.js').then(({ openFolderMenu }) =>
+        openFolderMenu({ store, playIds: [created.id], anchor })
+      );
+    },
     onWristband: (item) => {
       const created = addToBook(item);
       close();

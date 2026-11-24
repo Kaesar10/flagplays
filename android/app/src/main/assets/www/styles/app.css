@@ -2362,3 +2362,81 @@ textarea.input {
 .terms-link:hover {
   text-decoration-color: var(--accent);
 }
+
+
+/* ============================ CARPETAS EN LA LIBRETA ============================ */
+.sb-folders {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 12px 8px;
+  flex: none;
+}
+.sb-folders::-webkit-scrollbar {
+  display: none;
+}
+.sb-folder {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-line, #1f303a);
+  background: transparent;
+  color: var(--tx-2);
+  font-size: 11.5px;
+  font-weight: 600;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease, transform 0.12s ease;
+}
+.sb-folder:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--tx-0);
+}
+.sb-folder.is-active {
+  border-color: var(--f, var(--accent));
+  color: var(--f, var(--accent));
+  background: color-mix(in srgb, var(--f, var(--accent)) 14%, transparent);
+}
+.sb-folder-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--f, var(--accent));
+  flex: none;
+}
+.sb-folder-name {
+  max-width: 96px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sb-folder-n {
+  font-family: var(--mono, monospace);
+  font-size: 10px;
+  color: var(--tx-3);
+}
+.sb-folder-new {
+  width: 28px;
+  padding: 0;
+  justify-content: center;
+  color: var(--tx-3);
+  border-style: dashed;
+}
+/* Destino de arrastre resaltado */
+.sb-folder.is-drop {
+  transform: translateY(-1px);
+  border-color: var(--f, var(--accent));
+  background: color-mix(in srgb, var(--f, var(--accent)) 26%, transparent);
+  color: var(--tx-0);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--f, var(--accent)) 35%, transparent);
+}
+.play-item.is-dragging {
+  opacity: 0.5;
+}
+body.is-dragging-play .sb-folders {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}

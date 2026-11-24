@@ -3,10 +3,13 @@ import { playThumbSVG } from './renderer.js';
 import { playSubtitle } from './model.js';
 import { icon } from './icons.js';
 import { h, escapeHTML, popupMenu, confirmDialog, promptDialog, toast } from './ui.js';
+import { openFolderMenu, crearCarpetaConJugadas, makeDropTarget, makeDraggablePlay } from './folder-picker.js';
 
 export function createLibrary({ root, store, actions }) {
   let query = '';
   let filter = 'all';
+let filterFolder = null; // id de carpeta activa en la libreta
+let folderBar = null; // barra de carpetas (se crea en buildShell)
   let shellBuilt = false;
   let els = {};
 
@@ -40,6 +43,7 @@ export function createLibrary({ root, store, actions }) {
     searchWrap.append(input);
 
     const chips = h('div', { class: 'chips', role: 'group', 'aria-label': 'Filtrar' });
+  folderBar = h('div', { class: 'sb-folders', role: 'group', 'aria-label': 'Carpetas' });
     for (const [id, label] of [
       ['all', 'Todas'],
       ['offense', 'Ofensiva'],
@@ -71,7 +75,7 @@ export function createLibrary({ root, store, actions }) {
       })
     );
 
-    root.append(head, searchWrap, chips, list, foot);
+    root.append(head, searchWrap, chips, folderBar, list, foot);
     els = { head, count: head.querySelector('.sb-count'), input, list, foot, total: foot.querySelector('.sb-total') };
     shellBuilt = true;
   }
@@ -110,6 +114,11 @@ export function createLibrary({ root, store, actions }) {
     popupMenu(anchor, [
       { label: 'Renombrar', icon: 'pen', onClick: () => rename(play) },
       { label: 'Duplicar', icon: 'copy', onClick: () => store.actions.duplicatePlay(play.id) },
+      {
+        label: 'Añadir a carpeta…',
+        icon: 's-folder',
+        onClick: () => openFolderMenu({ store, playIds: [play.id], anchor }),
+      },
       { label: 'Subir', icon: 'chevron-up', onClick: () => move(play, -1) },
       { label: 'Bajar', icon: 'chevron-down', onClick: () => move(play, 1) },
       '-',
@@ -148,11 +157,66 @@ export function createLibrary({ root, store, actions }) {
     store.actions.removePlay(play.id);
   }
 
+  /** Barra de carpetas de la libreta: filtra al pulsar y acepta jugadas arrastradas. */
+  function renderFolders() {
+    if (!shellBuilt) return;
+    folderBar.replaceChildren();
+    const carpetas = store.getFolders();
+    const todas = h('button', {
+      class: `sb-folder sb-folder-all${filterFolder === null ? ' is-active' : ''}`,
+      type: 'button',
+      text: 'Todas',
+      title: 'Ver todas las jugadas',
+      onclick: () => {
+        filterFolder = null;
+        renderList();
+        renderFolders();
+      },
+    });
+    folderBar.append(todas);
+    for (const f of carpetas) {
+      const chip = h(
+        'button',
+        {
+          class: `sb-folder${filterFolder === f.id ? ' is-active' : ''}`,
+          type: 'button',
+          title: `Carpeta ${f.name} (${f.playIds.length}) — arrastra jugadas aquí`,
+          style: `--f:${f.color || '#5b8cff'}`,
+          onclick: () => {
+            filterFolder = filterFolder === f.id ? null : f.id;
+            renderList();
+            renderFolders();
+          },
+        },
+        h('span', { class: 'sb-folder-dot' }),
+        h('span', { class: 'sb-folder-name', text: f.name }),
+        h('span', { class: 'sb-folder-n', text: String(f.playIds.length) })
+      );
+      makeDropTarget(chip, (ids) => {
+        const n = store.actions.addToFolder(f.id, ids);
+        toast(n ? `${n} jugada${n === 1 ? '' : 's'} a «${f.name}»` : `Ya estaban en «${f.name}»`);
+        renderFolders();
+      });
+      folderBar.append(chip);
+    }
+    folderBar.append(
+      h('button', {
+        class: 'sb-folder sb-folder-new',
+        type: 'button',
+        title: 'Nueva carpeta',
+        html: icon('plus', { size: 13 }),
+        onclick: () => crearCarpetaConJugadas({ store, onDone: () => (renderFolders(), renderList()) }),
+      })
+    );
+  }
+
   function renderList() {
     if (!shellBuilt) return;
     const book = store.getPlaybook();
+    const carpetaActiva = filterFolder ? store.getFolder(filterFolder) : null;
     const plays = book.plays.filter((p) => {
       if (filter !== 'all' && p.type !== filter) return false;
+      if (carpetaActiva && !carpetaActiva.playIds.includes(p.id)) return false;
       if (!query) return true;
       const hay = `${p.name} ${p.category} ${(p.tags || []).join(' ')} ${p.formation}`.toLowerCase();
       return hay.includes(query);
@@ -166,6 +230,7 @@ export function createLibrary({ root, store, actions }) {
       els.count.classList.add('is-bump');
     }
     els.total.textContent = `${book.plays.length} jugada${book.plays.length === 1 ? '' : 's'} · guardado local`;
+    renderFolders();
     els.list.innerHTML = '';
 
     if (!plays.length) {
@@ -220,6 +285,10 @@ export function createLibrary({ root, store, actions }) {
           e.stopPropagation();
           itemMenu(e.currentTarget, play);
         },
+      });
+      makeDraggablePlay(item, () => {
+        const sel = store.state.selection.ids || [];
+        return sel.includes(play.id) && sel.length > 1 ? sel : [play.id];
       });
       item.querySelector('.pi-actions').append(moreBtn);
       item.addEventListener('click', () => store.selectPlay(play.id));

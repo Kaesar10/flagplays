@@ -454,6 +454,13 @@ export function createCatalogEditor(options = {}) {
         onclick: () => runAction(onEdit, item),
       }),
       h('button', {
+        class: 'btn cat-action cat-action-folder',
+        type: 'button',
+        'aria-label': `Añadir ${item.name} a una carpeta`,
+        html: `${icon('s-folder', { size: 13 })}<span>A la carpeta</span>`,
+        onclick: (e) => runAction((it) => onFolder?.(it, e.currentTarget), item),
+      }),
+      h('button', {
         class: 'btn cat-action cat-action-wrist',
         type: 'button',
         'aria-label': `Enviar ${item.name} a la muñequera`,

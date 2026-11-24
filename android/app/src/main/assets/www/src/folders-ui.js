@@ -7,6 +7,7 @@ import { h, escapeHTML, toast, modal, confirmDialog, promptDialog } from './ui.j
 import { icon } from './icons.js';
 import { playThumbSVG, playToSVG } from './renderer.js';
 import { FOLDER_COLORS } from './state.js';
+import { makeDropTarget, makeDraggablePlay } from './folder-picker.js';
 
 const NOMBRE_SECCION = 'Carpetas';
 
@@ -134,8 +135,7 @@ export function createFoldersEditor({ store, mount, onClose, onEdit }) {
     for (const f of lista) {
       const total = store.getPlaysInFolder(f.id).length;
       const activa = f.id === seleccionada;
-      listaEl.append(
-        h(
+      const fila = h(
           'button',
           {
             class: `fo-item${activa ? ' is-active' : ''}`,
@@ -161,8 +161,19 @@ export function createFoldersEditor({ store, mount, onClose, onEdit }) {
               menuCarpeta(e.currentTarget, f);
             },
           })
-        )
-      );
+        );
+      // Soltar aquí una jugada la mueve a esta carpeta.
+      makeDropTarget(fila, (ids) => {
+        const origen = seleccionada;
+        store.actions.addToFolder(f.id, ids);
+        if (origen && origen !== f.id) {
+          for (const id of ids) store.actions.removeFromFolder(origen, id);
+        }
+        seleccionada = f.id;
+        pintar();
+        toast(`${ids.length} jugada${ids.length === 1 ? '' : 's'} en «${f.name}»`);
+      });
+      listaEl.append(fila);
     }
 
     // --- contenido de la carpeta
@@ -204,10 +215,9 @@ export function createFoldersEditor({ store, mount, onClose, onEdit }) {
     }
 
     for (const play of dentro) {
-      gridEl.append(
-        h(
+      const tarjeta = h(
           'article',
-          { class: 'fo-card', role: 'listitem' },
+          { class: 'fo-card', role: 'listitem', title: 'Arrastra a otra carpeta para moverla' },
           h('button', {
             class: 'fo-card-open',
             type: 'button',
@@ -233,8 +243,9 @@ export function createFoldersEditor({ store, mount, onClose, onEdit }) {
               toast('Quitada de la carpeta');
             },
           })
-        )
-      );
+        );
+      makeDraggablePlay(tarjeta, () => [play.id]);
+      gridEl.append(tarjeta);
     }
   }
 
