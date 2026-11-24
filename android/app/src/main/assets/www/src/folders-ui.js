@@ -233,6 +233,17 @@ export function createFoldersEditor({ store, mount, onClose, onEdit }) {
               }</span>`,
           }),
           h('button', {
+            class: 'fo-card-more',
+            type: 'button',
+            title: 'Opciones de la jugada',
+            'aria-label': `Opciones de ${play.name}`,
+            html: icon('more', { size: 14 }),
+            onclick: (e) => {
+              e.stopPropagation();
+              menuJugada(e.currentTarget, carpeta, play);
+            },
+          }),
+          h('button', {
             class: 'fo-card-x',
             type: 'button',
             title: 'Quitar de la carpeta',
@@ -245,6 +256,30 @@ export function createFoldersEditor({ store, mount, onClose, onEdit }) {
           })
         );
       makeDraggablePlay(tarjeta, () => [play.id]);
+      // Reordenar arrastrando sobre otra tarjeta (marca antes/después).
+      const limpiarMarca = () => tarjeta.classList.remove('drop-before', 'drop-after');
+      tarjeta.addEventListener('dragover', (e) => {
+        if (!e.dataTransfer) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        const r = tarjeta.getBoundingClientRect();
+        const antes = e.clientX - r.left < r.width / 2;
+        tarjeta.classList.toggle('drop-before', antes);
+        tarjeta.classList.toggle('drop-after', !antes);
+      });
+      tarjeta.addEventListener('dragleave', limpiarMarca);
+      tarjeta.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const antes = tarjeta.classList.contains('drop-before');
+        limpiarMarca();
+        const crudo = e.dataTransfer?.getData('text/plain') || '';
+        const id = crudo.split(',')[0];
+        if (!id || id === play.id) return;
+        const destino = store.getFolder(carpeta.id)?.playIds || [];
+        const pos = destino.indexOf(play.id);
+        store.actions.moveInFolder(carpeta.id, id, antes ? pos : pos + 1);
+        pintar();
+      });
       gridEl.append(tarjeta);
     }
   }
@@ -318,6 +353,27 @@ export function createFoldersEditor({ store, mount, onClose, onEdit }) {
     const items = [
       { label: 'Añadir jugadas', icon: 'plus', onClick: () => ((seleccionada = f.id), pintar(), añadirJugadas()) },
       { label: 'Renombrar', icon: 'edit', onClick: () => renombrar(f) },
+      {
+        label: 'Duplicar carpeta',
+        icon: 'copy',
+        onClick: () => {
+          const copia = store.actions.duplicateFolder(f.id);
+          if (!copia) return;
+          seleccionada = copia.id;
+          pintar();
+          toast(`«${f.name}» duplicada`);
+        },
+      },
+      {
+        label: 'Vaciar carpeta',
+        icon: 'x',
+        onClick: () => {
+          if (!store.getPlaysInFolder(f.id).length) return toast('Ya está vacía');
+          store.actions.clearFolder(f.id);
+          pintar();
+          toast('Carpeta vaciada (las jugadas siguen en la libreta)');
+        },
+      },
     ];
     for (const c of FOLDER_COLORS.slice(0, 6)) {
       items.push({
@@ -332,6 +388,59 @@ export function createFoldersEditor({ store, mount, onClose, onEdit }) {
     items.push({ label: 'Borrar carpeta', icon: 'trash', danger: true, onClick: () => ((seleccionada = f.id), borrarCarpeta()) });
     // popupMenu: se importa de forma diferida para no cargar el módulo entero al inicio
     import('./ui.js').then((ui) => ui.popupMenu(ancla, items));
+  }
+
+  /** Menú de una jugada dentro de la carpeta: orden y quitar. */
+  function menuJugada(ancla, carpeta, play) {
+    const lista = store.getFolder(carpeta.id)?.playIds || [];
+    const idx = lista.indexOf(play.id);
+    const total = lista.length;
+    import('./ui.js').then((ui) =>
+      ui.popupMenu(ancla, [
+        {
+          label: 'Al principio',
+          icon: 'chevron-up',
+          onClick: () => {
+            store.actions.moveInFolder(carpeta.id, play.id, 0);
+            pintar();
+          },
+        },
+        {
+          label: 'Subir',
+          icon: 'chevron-up',
+          onClick: () => {
+            store.actions.moveInFolder(carpeta.id, play.id, Math.max(0, idx - 1));
+            pintar();
+          },
+        },
+        {
+          label: 'Bajar',
+          icon: 'chevron-down',
+          onClick: () => {
+            store.actions.moveInFolder(carpeta.id, play.id, Math.min(total - 1, idx + 1));
+            pintar();
+          },
+        },
+        {
+          label: 'Al final',
+          icon: 'chevron-down',
+          onClick: () => {
+            store.actions.moveInFolder(carpeta.id, play.id, total - 1);
+            pintar();
+          },
+        },
+        '-',
+        {
+          label: 'Quitar de la carpeta',
+          icon: 'x',
+          danger: true,
+          onClick: () => {
+            store.actions.removeFromFolder(carpeta.id, play.id);
+            toast('Quitada de la carpeta');
+          },
+        },
+      ])
+    );
   }
 
   /** Selector de jugadas para meter en la carpeta (de la libreta). */

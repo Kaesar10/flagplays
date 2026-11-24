@@ -127,4 +127,50 @@ prueba('añadir una jugada inexistente no hace nada', () => {
   assert.equal(store2.getPlaysInFolder(f.id).length, 0);
 });
 
+prueba('duplicar una carpeta copia nombre y jugadas', () => {
+  const f = store.actions.addFolder('Original');
+  const ids = store.getPlaybook().plays.slice(0, 2).map((p) => p.id);
+  store.actions.addToFolder(f.id, ids);
+  const copia = store.actions.duplicateFolder(f.id);
+  assert.ok(copia, 'devuelve la copia');
+  assert.notEqual(copia.id, f.id);
+  assert.match(copia.name, /copia/);
+  assert.equal(copia.playIds.length, f.playIds.length);
+  assert.equal(copia.color, f.color);
+  // la copia va justo después
+  const lista = store.getFolders();
+  assert.equal(lista.findIndex((x) => x.id === copia.id), lista.findIndex((x) => x.id === f.id) + 1);
+  store.actions.removeFolder(copia.id);
+  store.actions.removeFolder(f.id);
+});
+
+prueba('vaciar la carpeta no borra las jugadas', () => {
+  const f = store.actions.addFolder('Para vaciar');
+  const ids = store.getPlaybook().plays.slice(0, 2).map((p) => p.id);
+  store.actions.addToFolder(f.id, ids);
+  const antes = store.getPlaybook().plays.length;
+  store.actions.clearFolder(f.id);
+  assert.equal(store.getPlaysInFolder(f.id).length, 0);
+  assert.equal(store.getPlaybook().plays.length, antes);
+  store.actions.removeFolder(f.id);
+});
+
+prueba('reordenar dentro de la carpeta', () => {
+  const f = store.actions.addFolder('Orden');
+  const ids = store.getPlaybook().plays.slice(0, 3).map((p) => p.id);
+  store.actions.addToFolder(f.id, ids);
+  if (ids.length < 2) return;
+  store.actions.moveInFolder(f.id, ids[0], ids.length - 1);
+  assert.equal(store.getFolder(f.id).playIds[ids.length - 1], ids[0]);
+  const primera = store.getFolder(f.id).playIds[0];
+  store.actions.reorderPlayInFolder(f.id, 0, 1);
+  assert.equal(store.getFolder(f.id).playIds[1], primera);
+  store.actions.removeFolder(f.id);
+});
+
+prueba('duplicar una carpeta inexistente no rompe', () => {
+  assert.equal(store.actions.duplicateFolder('no_existe'), null);
+});
+
 console.log(`\nCarpetas: ${ok} pruebas en verde.`);
+

@@ -508,3 +508,64 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+
+/* ---------------------------------------------- reordenar arrastrando */
+.fo-card {
+  position: relative;
+}
+/* Marca de inserción antes/después de la tarjeta */
+.fo-card.drop-before::before,
+.fo-card.drop-after::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--sec, #5b8cff);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--sec, #5b8cff) 60%, transparent);
+  z-index: 4;
+}
+.fo-card.drop-before::before {
+  left: -2px;
+}
+.fo-card.drop-after::after {
+  right: -2px;
+}
+.fo-card.is-dragging {
+  opacity: 0.45;
+}
+
+/* Botón de opciones de la tarjeta, junto a la X */
+.fo-card-more {
+  position: absolute;
+  top: 6px;
+  right: 36px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid var(--glass-line, #1f303a);
+  background: rgba(8, 12, 15, 0.8);
+  color: var(--tx-2);
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.fo-card:hover .fo-card-more,
+.fo-card-more:focus-visible {
+  opacity: 1;
+}
+.fo-card-more:hover {
+  color: var(--sec, #5b8cff);
+  border-color: color-mix(in srgb, var(--sec, #5b8cff) 45%, transparent);
+}
+@media (max-width: 900px) {
+  .fo-card-more {
+    opacity: 1;
+    right: 32px;
+    width: 24px;
+    height: 24px;
+  }
+}

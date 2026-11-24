@@ -480,6 +480,41 @@ export function createStore() {
       update((s) => s.playbook.folders.push(f), { reason: 'folders' });
       return f;
     },
+    /** Copia una carpeta entera (jugadas incluidas) para hacer variantes. */
+    duplicateFolder(id) {
+      const origen = state.playbook.folders.find((f) => f.id === id);
+      if (!origen) return null;
+      const copia = {
+        id: uid('f'),
+        name: uniqueFolderName(`${origen.name} (copia)`),
+        color: origen.color,
+        playIds: [...origen.playIds],
+        createdAt: Date.now(),
+      };
+      update((s) => {
+        const idx = s.playbook.folders.findIndex((f) => f.id === id);
+        s.playbook.folders.splice(idx + 1, 0, copia);
+      }, { reason: 'folders' });
+      return copia;
+    },
+    /** Vacía la carpeta sin borrar ninguna jugada. */
+    clearFolder(id) {
+      update((s) => {
+        const f = s.playbook.folders.find((x) => x.id === id);
+        if (f) f.playIds = [];
+      }, { reason: 'folders' });
+    },
+    /** Mueve una jugada a una posición concreta de la carpeta. */
+    moveInFolder(folderId, playId, toIndex) {
+      update((s) => {
+        const f = s.playbook.folders.find((x) => x.id === folderId);
+        if (!f) return;
+        const desde = f.playIds.indexOf(playId);
+        if (desde < 0) return;
+        const [item] = f.playIds.splice(desde, 1);
+        f.playIds.splice(Math.max(0, Math.min(f.playIds.length, toIndex)), 0, item);
+      }, { reason: 'folders' });
+    },
     removeFolder(id) {
       update((s) => {
         s.playbook.folders = s.playbook.folders.filter((f) => f.id !== id);
