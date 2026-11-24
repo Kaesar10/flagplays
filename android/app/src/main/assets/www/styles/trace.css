@@ -1,0 +1,163 @@
+/* ============================================================================
+   CALCO DESDE FOTO — asistente para traer una jugada de una imagen
+   ============================================================================ */
+
+.tr {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* --- paso 1: elegir archivo --- */
+.tr-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 34px 20px;
+  border-radius: 16px;
+  border: 2px dashed var(--line-2, #2a3f4b);
+  background: rgba(255, 255, 255, 0.03);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.tr-drop:hover {
+  border-color: var(--accent, #b4f13f);
+  background: rgba(180, 241, 63, 0.06);
+}
+.tr-drop-ic {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(180, 241, 63, 0.14);
+  color: var(--accent, #b4f13f);
+}
+.tr-drop b {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--tx-0);
+}
+.tr-drop-sub {
+  font-size: 12.5px;
+  color: var(--tx-3, #6a8a97);
+  max-width: 42ch;
+  line-height: 1.45;
+}
+.tr-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.tr-note {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--tx-3, #6a8a97);
+  text-align: center;
+}
+
+/* --- paso 2: esquinas --- */
+.tr-guide {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 12px;
+}
+.tr-guide b {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--tx-0);
+}
+.tr-guide span {
+  font-size: 12px;
+  color: var(--tx-3, #6a8a97);
+}
+.tr-pins {
+  margin-left: auto;
+  font-family: var(--mono, monospace);
+  font-size: 12px;
+  color: var(--accent, #b4f13f) !important;
+}
+
+.tr-stage {
+  position: relative;
+  align-self: center;
+  max-width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line-2, #2a3f4b);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+  touch-action: none;
+  cursor: crosshair;
+  background: #0b1418;
+}
+.tr-canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.tr-pins-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.tr-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: #08120a;
+  background: var(--accent, #b4f13f);
+  box-shadow: 0 0 0 3px rgba(8, 18, 10, 0.55), 0 4px 12px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+.tr-tools {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* --- vídeo --- */
+.tr-video {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+.tr-video-canvas {
+  max-width: 100%;
+  border-radius: 12px;
+  background: #000;
+}
+.tr-video .range {
+  width: 100%;
+}
+
+/* --- móvil --- */
+@media (max-width: 760px) {
+  .tr-drop {
+    padding: 24px 14px;
+  }
+  .tr-guide {
+    gap: 4px 8px;
+  }
+  .tr-pins {
+    margin-left: 0;
+  }
+  .tr-pin {
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
+  }
+}

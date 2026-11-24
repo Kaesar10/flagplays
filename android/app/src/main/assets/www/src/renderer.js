@@ -142,6 +142,22 @@ function arrowHead(tip, angle, size, color) {
 const r1 = (v) => Math.round(v);
 
 /** Dibuja el campo (rectángulos, líneas, números). */
+/** Rectángulo del campo (césped jugable) en píxeles, para calcar fotos. */
+export function fieldRectPx(view) {
+  const { field } = view;
+  const halfW = field.width / 2;
+  const topY = view.ahead ?? field.depth;
+  const ezBottom = view.showEZ ? topY + field.ez : topY;
+  const tl = fieldToPx({ x: -halfW, y: ezBottom }, view);
+  const br = fieldToPx({ x: halfW, y: -view.behind }, view);
+  return {
+    x: Math.min(tl.x, br.x),
+    y: Math.min(tl.y, br.y),
+    w: Math.abs(br.x - tl.x),
+    h: Math.abs(br.y - tl.y),
+  };
+}
+
 function fieldLayer(view, th, opts) {
   const ap = normalizeAppearance(opts.appearance);
   const { field } = view;
@@ -561,6 +577,14 @@ export function playToSVGInner(play, opts = {}) {
     `<defs><clipPath id="clip-${o.uid}"><rect x="0" y="0" width="${o.width}" height="${o.height}" rx="3"/></clipPath></defs>`
   );
   parts.push(fieldMk);
+  // Foto de calco: va sobre el césped y debajo de jugadores y rutas.
+  if (o.showTrace !== false && play.trace?.dataUrl && play.trace.visible !== false && o.mode !== 'card') {
+    const r = fieldRectPx(view);
+    const op = Number(play.trace.opacity ?? 0.45);
+    parts.push(
+      `<image href="${play.trace.dataUrl}" x="${n(r.x)}" y="${n(r.y)}" width="${n(r.w)}" height="${n(r.h)}" opacity="${n(op)}" preserveAspectRatio="none" clip-path="url(#clip-${o.uid})"/>`
+    );
+  }
   if (o.showDefense && o.showZones) parts.push(`<g>${zonesLayer(visible, view, th, o)}</g>`);
   if (o.showRoutes) parts.push(`<g>${routeLayer(visible, view, th, o)}</g>`);
   parts.push(`<g>${ballLayer(visible, view, th, o)}</g>`);

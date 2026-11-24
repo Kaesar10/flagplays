@@ -1,5 +1,5 @@
 // Store central de FlagPlays: estado, mutaciones, historial (undo/redo) y persistencia.
-import { emptyPlaybook, normalizePlaybook, createPlay, clonePlay, uid, blankPlay, compactStyle, createRoute, normalizeRoute } from './model.js';
+import { emptyPlaybook, normalizePlaybook, createPlay, clonePlay, uid, blankPlay, compactStyle, createRoute, normalizeRoute, normalizeTrace } from './model.js';
 import { DEFAULT_APPEARANCE, normalizeAppearance, normalizePlayerStyle } from './appearance.js';
 
 const KEY = 'flagplays.v1';
@@ -320,6 +320,20 @@ export function createStore() {
         Object.assign(p, patch);
         p.meta = { ...p.meta, updatedAt: Date.now() };
       }, { history: opts.history !== false, silent: opts.silent, reason: 'play' });
+    },
+    /** Guarda, actualiza o quita la foto de calco de la jugada actual. */
+    setTrace(patch) {
+      const play = getPlay();
+      if (!play) return;
+      update((s) => {
+        const p = s.playbook.plays.find((x) => x.id === s.playId);
+        if (!p) return;
+        if (patch === null) {
+          p.trace = null;
+          return;
+        }
+        p.trace = normalizeTrace({ ...(p.trace || {}), ...patch });
+      }, { reason: 'play' });
     },
     addPlayer(player, opts = {}) {
       const play = getPlay();

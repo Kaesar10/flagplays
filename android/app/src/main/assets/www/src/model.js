@@ -48,6 +48,21 @@ export function defaultField(format = 7) {
   return { width: f.width, depth: f.depth, ez: f.ez };
 }
 
+/** Foto de referencia de una jugada (calco). Se guarda ya deformada y comprimida. */
+export function normalizeTrace(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const url = typeof raw.dataUrl === 'string' ? raw.dataUrl : '';
+  if (!url.startsWith('data:image/')) return null;
+  const op = Number(raw.opacity);
+  return {
+    dataUrl: url,
+    opacity: Number.isFinite(op) ? Math.min(0.9, Math.max(0.05, op)) : 0.45,
+    visible: raw.visible !== false,
+    ancho: Number(raw.ancho) || 0,
+    alto: Number(raw.alto) || 0,
+  };
+}
+
 export function createPlayer(partial = {}) {
   const role = partial.role || (partial.team === 'defense' ? 'db' : 'wr');
   return {
@@ -244,6 +259,7 @@ export function createRoute(partial = {}) {
     mirror: partial.mirror === true,
     builtin: false,
     points: pts.length ? pts : [{ x: 3, y: 8 }],
+    trace: normalizeTrace(partial.trace),
     meta: { createdAt: partial.meta?.createdAt || Date.now(), updatedAt: Date.now() },
   };
 }

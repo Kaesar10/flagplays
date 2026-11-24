@@ -29,6 +29,7 @@ import { openFoldersEditor, isFoldersOpen, closeFoldersEditor } from './folders-
 import { initNative, isAndroidApp, isWindowsApp, shareText } from './native.js';
 import { ensureTermsAccepted, viewTerms, isAccepted, openTermsDialog } from './terms.js';
 import { openLegalDialog } from './legal-ui.js';
+import { abrirCalco } from './trace-ui.js';
 import { mountMobileUI, isMobileSheetOpen, closeMobileSheet, closeMobileTools } from './mobile-ui.js';
 import { registerCustomRoutes } from './presets.js';
 
@@ -259,6 +260,14 @@ function syncTools() {
     }
     root.append(toggles);
 
+    const traceBtn = h('button', {
+      class: 'tool-btn',
+      'data-trace': '1',
+      title: 'Calcar una jugada desde una foto o un vídeo',
+      'aria-label': 'Calcar desde una foto',
+      html: `${icon('camera', { size: 14 })}<span>Calcar</span>`,
+      onclick: () => calcarDesdeFoto(),
+    });
     const flipBtn = h('button', {
       class: 'tool-btn icon-only',
       title: 'Ver desde la defensa',
@@ -280,7 +289,7 @@ function syncTools() {
         syncTools();
       },
     });
-    root.append(flipBtn, snapBtn);
+    root.append(traceBtn, flipBtn, snapBtn);
     root.append(h('div', { class: 'tools-spacer' }));
     // Deshacer / rehacer a mano, junto al campo (además de los de la barra superior).
     const undoBtn = h('button', {
@@ -754,6 +763,46 @@ function openPrintSection(opts = {}) {
   });
 }
 
+let calcoAbierto = false;
+
+/** Abre el asistente de calco y guarda la foto en la jugada actual. */
+async function calcarDesdeFoto() {
+  if (calcoAbierto) return;
+  calcoAbierto = true;
+  try {
+    const res = await abrirCalco();
+    if (!res) return;
+    if (res.quitar) {
+      store.actions.setTrace(null);
+      toast('Foto de calco quitada');
+    } else {
+      store.actions.setTrace({
+        dataUrl: res.dataUrl,
+        ancho: res.ancho,
+        alto: res.alto,
+        opacity: res.opacity ?? 0.45,
+        visible: true,
+      });
+      toast('Foto lista: repasa las rutas encima');
+    }
+    editor.render();
+  } catch (err) {
+    console.error('[calco]', err);
+    toast('No se pudo preparar la foto', 'error');
+  } finally {
+    calcoAbierto = false;
+  }
+}
+
+/** Muestra u oculta la foto de calco de la jugada actual. */
+function alternarFotoCalco() {
+  const play = store.getPlay();
+  if (!play?.trace?.dataUrl) return toast('Esta jugada no tiene foto de calco', 'error');
+  store.actions.setTrace({ visible: play.trace.visible === false });
+  editor.render();
+  toast(play.trace.visible === false ? 'Foto visible' : 'Foto oculta');
+}
+
 function openPrint(opts = {}) {
   if (!printMod?.openPrintDialog) return toast('Impresión no disponible', 'error');
   const book = store.getPlaybook();
@@ -958,6 +1007,9 @@ function openMainMenu(anchor) {
         if (name) store.actions.renamePlaybook(name);
       },
     },
+    { label: 'Calcar desde una foto…', icon: 'camera', onClick: () => calcarDesdeFoto() },
+    { label: 'Mostrar u ocultar la foto', icon: 'eye', onClick: () => alternarFotoCalco() },
+    '-',
     { label: 'Propiedades de la jugada', icon: 'sliders', onClick: () => openInspector('play') },
     { label: 'Apariencia y colores', icon: 'pen', onClick: () => openInspector('style') },
     '-',

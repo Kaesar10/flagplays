@@ -41,6 +41,7 @@ import android.webkit.JavascriptInterface;
 import android.webkit.JsPromptResult;
 import android.webkit.JsResult;
 import android.webkit.MimeTypeMap;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -79,6 +80,8 @@ public class MainActivity extends Activity {
     private static final String START_URL = ORIGIN + "/index.html";
     private static final int BG_COLOR = 0xFF0B1116;
     private static final long DOUBLE_BACK_MS = 2000L;
+    private static final int REQ_FILE_CHOOSER = 4711;
+    private ValueCallback<Uri[]> fileChooserCallback;
     private static final int REQ_WRITE_STORAGE = 4101;
     private static final int MAX_VIBRATION_MS = 2000;
 
@@ -308,6 +311,32 @@ public class MainActivity extends Activity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQ_FILE_CHOOSER) {
+            if (fileChooserCallback == null) {
+                super.onActivityResult(requestCode, resultCode, data);
+                return;
+            }
+            Uri[] resultado = null;
+            if (resultCode == RESULT_OK && data != null) {
+                if (data.getClipData() != null) {
+                    int n = data.getClipData().getItemCount();
+                    resultado = new Uri[n];
+                    for (int i = 0; i < n; i++) {
+                        resultado[i] = data.getClipData().getItemAt(i).getUri();
+                    }
+                } else if (data.getData() != null) {
+                    resultado = new Uri[] { data.getData() };
+                }
+            }
+            fileChooserCallback.onReceiveValue(resultado);
+            fileChooserCallback = null;
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     private final class AppChromeClient extends WebChromeClient {
 
         @Override
@@ -317,6 +346,28 @@ public class MainActivity extends Activity {
                         + " (" + message.sourceId() + ":" + message.lineNumber() + ")");
             }
             return true;
+        }
+
+        @Override
+        public boolean onShowFileChooser(
+                WebView webView, ValueCallback<Uri[]> callback, FileChooserParams params) {
+            // Deja que el <input type="file"> de la web abra el selector del sistema.
+            if (fileChooserCallback != null) {
+                fileChooserCallback.onReceiveValue(null);
+            }
+            fileChooserCallback = callback;
+            try {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] { "image/*", "video/*" });
+                startActivityForResult(Intent.createChooser(intent, "Elegir foto o vídeo"), REQ_FILE_CHOOSER);
+                return true;
+            } catch (Exception e) {
+                Log.w(TAG, "No se pudo abrir el selector de archivos", e);
+                fileChooserCallback = null;
+                return false;
+            }
         }
 
         @Override
