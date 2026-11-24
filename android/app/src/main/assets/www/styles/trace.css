@@ -107,6 +107,36 @@
   inset: 0;
   pointer-events: none;
 }
+.tr-pins-layer .tr-pin {
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+}
+.tr-pins-layer .tr-pin:active {
+  cursor: grabbing;
+  transform: translate(-50%, -50%) scale(1.12);
+}
+.tr-detect {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-line, rgba(255, 255, 255, 0.1));
+  background: rgba(180, 241, 63, 0.08);
+  color: var(--tx-1, #b9cbd3);
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+.tr-detect input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent, #b4f13f);
+  flex: none;
+}
+.tr-detect[hidden] {
+  display: none;
+}
 .tr-pin {
   position: absolute;
   transform: translate(-50%, -50%);

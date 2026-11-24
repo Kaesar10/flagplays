@@ -6,6 +6,7 @@
 import { h, toast, modal } from './ui.js';
 import { icon } from './icons.js';
 import { orderCorners, quadArea, fitSize } from './trace-math.js';
+import { detectarFichas } from './trace-detect.js';
 
 const MAX_VISTA = 760; // tamaño máximo de la foto en pantalla
 export const SALIDA_ANCHO = 1000; // tamaño de la imagen deformada que se guarda
@@ -30,7 +31,7 @@ export function cargarImagen(file) {
  * Canvas solo hace transformaciones afines, así que se pinta en dos triángulos.
  * @returns {string} dataURL JPEG comprimido
  */
-export function deformarACampo(img, esquinas) {
+export function deformarConCanvas(img, esquinas) {
   const orden = orderCorners(esquinas) || esquinas;
   const out = document.createElement('canvas');
   out.width = SALIDA_ANCHO;
@@ -71,7 +72,12 @@ export function deformarACampo(img, esquinas) {
     ctx.drawImage(img, 0, 0);
     ctx.restore();
   }
-  return out.toDataURL('image/jpeg', 0.72);
+  return { dataUrl: out.toDataURL('image/jpeg', 0.72), canvas: out };
+}
+
+/** Solo la imagen deformada (atajo). */
+export function deformarACampo(img, esquinas) {
+  return deformarConCanvas(img, esquinas).dataUrl;
 }
 
 /** Deja elegir el fotograma de un vídeo y lo devuelve como imagen. */
@@ -150,6 +156,8 @@ export function abrirCalco() {
     let resultado = null;
     let escala = { w: 1, h: 1 };
     let opacidad = 45; // % de la foto de fondo
+    let fichas = []; // jugadores detectados en la foto
+    let colocarFichas = true;
     const cuerpo = h('div', { class: 'tr' });
 
     modal({
@@ -230,18 +238,83 @@ export function abrirCalco() {
       const estado = h('span', { class: 'tr-pins', text: '0 de 4' });
       const marco = h('div', { class: 'tr-stage' }, lienzo, capa);
 
+      // Las esquinas ya puestas se pueden arrastrar para corregirlas.
+      let arrastrePin = null;
+      const recalcular = () => {
+        if (esquinas.length < 4) return;
+        const orden = orderCorners(esquinas);
+        if (!orden || quadArea(orden) < 1500) return;
+        const deformada = deformarConCanvas(img, orden);
+        fichas = [];
+        try {
+          const ctx = deformada.canvas.getContext('2d');
+          const pixeles = ctx.getImageData(0, 0, deformada.canvas.width, deformada.canvas.height);
+          fichas = detectarFichas(
+            { data: pixeles.data, ancho: deformada.canvas.width, alto: deformada.canvas.height },
+            { minLado: 6, maxLado: 44 }
+          ).slice(0, 24);
+        } catch (err) {
+          console.warn('[calco] detección', err);
+        }
+        resultado = {
+          dataUrl: deformada.dataUrl,
+          ancho: SALIDA_ANCHO,
+          alto: SALIDA_ALTO,
+          opacity: opacidad / 100,
+          get fichas() {
+            return colocarFichas ? fichas : [];
+          },
+        };
+        pintarDeteccion();
+      };
+
       const repintarPines = () => {
         capa.replaceChildren();
         esquinas.forEach((p, i) => {
-          capa.append(
-            h('span', {
-              class: 'tr-pin',
-              style: `left:${(p.x / tam.w) * 100}%;top:${(p.y / tam.h) * 100}%`,
-              text: String(i + 1),
-            })
-          );
+          const pin = h('span', {
+            class: 'tr-pin',
+            style: `left:${(p.x / tam.w) * 100}%;top:${(p.y / tam.h) * 100}%`,
+            text: String(i + 1),
+          });
+          pin.addEventListener('pointerdown', (evt) => {
+            evt.preventDefault();
+            evt.stopPropagation();
+            arrastrePin = i;
+            pin.setPointerCapture?.(evt.pointerId);
+          });
+          pin.addEventListener('pointermove', (evt) => {
+            if (arrastrePin !== i) return;
+            const r = lienzo.getBoundingClientRect();
+            esquinas[i] = {
+              x: Math.max(0, Math.min(tam.w, ((evt.clientX - r.left) / r.width) * tam.w)),
+              y: Math.max(0, Math.min(tam.h, ((evt.clientY - r.top) / r.height) * tam.h)),
+            };
+            repintarPines();
+          });
+          pin.addEventListener('pointerup', () => {
+            if (arrastrePin === i) {
+              arrastrePin = null;
+              recalcular();
+            }
+          });
+          capa.append(pin);
         });
         estado.textContent = esquinas.length === 4 ? 'Listo: pulsa «Usar esta foto»' : `${esquinas.length} de 4`;
+      };
+
+      const avisoFichas = h('label', { class: 'tr-detect' });
+      const pintarDeteccion = () => {
+        avisoFichas.replaceChildren();
+        if (!fichas.length) return;
+        const check = h('input', { type: 'checkbox', checked: colocarFichas });
+        check.addEventListener('change', () => {
+          colocarFichas = check.checked;
+        });
+        avisoFichas.append(
+          check,
+          h('span', { text: `${fichas.length} jugador${fichas.length === 1 ? '' : 'es'} detectado${fichas.length === 1 ? '' : 's'}: colocarlos en la jugada` })
+        );
+        avisoFichas.hidden = false;
       };
 
       marco.addEventListener('pointerdown', (evt) => {
@@ -257,11 +330,14 @@ export function abrirCalco() {
             toast('Esas esquinas no forman el campo: vuelve a marcarlas', 'error');
             esquinas = [];
             resultado = null;
+            fichas = [];
           } else {
-            resultado = { dataUrl: deformarACampo(img, orden), ancho: SALIDA_ANCHO, alto: SALIDA_ALTO, opacity: opacidad / 100 };
+            recalcular();
           }
         } else {
           resultado = null;
+          fichas = [];
+          pintarDeteccion();
         }
         repintarPines();
       });
@@ -309,7 +385,8 @@ export function abrirCalco() {
             onclick: () => pintarArchivo(),
           }),
           h('label', { class: 'tr-op-wrap' }, h('span', { text: 'Opacidad' }), controlOpacidad, textoOpacidad)
-        )
+        ),
+        avisoFichas
       );
       repintarPines();
     }

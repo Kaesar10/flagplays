@@ -30,6 +30,9 @@ import { initNative, isAndroidApp, isWindowsApp, shareText } from './native.js';
 import { ensureTermsAccepted, viewTerms, isAccepted, openTermsDialog } from './terms.js';
 import { openLegalDialog } from './legal-ui.js';
 import { abrirCalco } from './trace-ui.js';
+import { puntosAYardas } from './trace-detect.js';
+import { fieldRectPx } from './renderer.js';
+import { pxToField } from './field.js';
 import { mountMobileUI, isMobileSheetOpen, closeMobileSheet, closeMobileTools } from './mobile-ui.js';
 import { registerCustomRoutes } from './presets.js';
 
@@ -783,7 +786,27 @@ async function calcarDesdeFoto() {
         opacity: res.opacity ?? 0.45,
         visible: true,
       });
-      toast('Foto lista: repasa las rutas encima');
+      // Coloca los jugadores detectados en la foto, si el usuario lo dejó marcado.
+      let colocados = 0;
+      if (Array.isArray(res.fichas) && res.fichas.length) {
+        const view = editor.getView?.();
+        if (view) {
+          const rect = fieldRectPx(view);
+          const yardas = puntosAYardas(res.fichas, { ancho: res.ancho, alto: res.alto }, rect, (px) => pxToField(px, view));
+          for (const y of yardas) {
+            const pos = { x: Math.round(y.x * 2) / 2, y: Math.round(y.y * 2) / 2 };
+            // dentro del campo: si no, no se coloca (falsos positivos del borde)
+            if (Math.abs(pos.x) > 30 || pos.y < -6 || pos.y > 30) continue;
+            store.actions.addPlayer({ team: 'offense', pos });
+            colocados += 1;
+          }
+        }
+      }
+      toast(
+        colocados
+          ? `Foto lista y ${colocados} jugador${colocados === 1 ? '' : 'es'} colocado${colocados === 1 ? '' : 's'}`
+          : 'Foto lista: repasa las rutas encima'
+      );
     }
     editor.render();
   } catch (err) {
