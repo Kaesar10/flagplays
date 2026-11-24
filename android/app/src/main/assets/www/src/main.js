@@ -731,7 +731,7 @@ function pickImportFile() {
 let printSection = null;
 
 /** Abre Muñequeras como sección a pantalla completa (no como ventana flotante). */
-function openPrintSection() {
+function openPrintSection(opts = {}) {
   if (printSection) return;
   const overlay = h('div', {
     class: 'section-overlay',
@@ -748,6 +748,7 @@ function openPrintSection() {
     scheduleRender({ field: true, library: true, inspector: true });
   };
   openPrint({
+    ...opts,
     container: overlay,
     onClose: cerrar,
   });
@@ -756,8 +757,12 @@ function openPrintSection() {
 function openPrint(opts = {}) {
   if (!printMod?.openPrintDialog) return toast('Impresión no disponible', 'error');
   const book = store.getPlaybook();
+  // Si llega un subconjunto (una carpeta), se imprime solo eso.
+  const plays = Array.isArray(opts.plays) && opts.plays.length ? opts.plays : book.plays;
+  const defaults = { current: store.state.playId };
+  if (opts.bookName) defaults.bookName = opts.bookName;
   printMod.openPrintDialog(
-    { playbook: book, plays: book.plays, defaults: { current: store.state.playId } },
+    { playbook: { ...book, name: opts.bookName || book.name }, plays, defaults },
     opts.container ? { container: opts.container, onClose: opts.onClose } : undefined
   );
 }
@@ -869,6 +874,11 @@ async function openSection(section) {
       await openFoldersEditor({
         store,
         onClose: () => setNavActive('plays'),
+        onPrint: (plays, nombre) => {
+          closeFoldersEditor();
+          setNavActive('wrist');
+          setTimeout(() => openPrintSection({ plays, bookName: nombre }), 60);
+        },
         onEdit: (playId) => {
           setNavActive('plays');
           scheduleRender({ library: true, field: true, inspector: true });

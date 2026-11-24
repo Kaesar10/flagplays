@@ -13,7 +13,7 @@ export function isFoldersOpen() {
 /**
  * @param {{store:any, onClose?:Function, onEdit?:(playId:string)=>void}} opts
  */
-export async function openFoldersEditor({ store, onClose, onEdit }) {
+export async function openFoldersEditor({ store, onClose, onEdit, onPrint }) {
   if (overlay) return;
   const mod = await import('./folders-ui.js').catch((e) => (console.warn('[carpetas]', e), null));
   if (!mod || typeof mod.createFoldersEditor !== 'function') {
@@ -48,6 +48,10 @@ export async function openFoldersEditor({ store, onClose, onEdit }) {
     onEdit: (playId) => {
       cerrar();
       onEdit?.(playId);
+    },
+    onPrint: (plays, nombre) => {
+      cerrar();
+      onPrint?.(plays, nombre);
     },
   });
 }

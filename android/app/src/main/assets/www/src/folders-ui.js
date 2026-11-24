@@ -8,6 +8,7 @@ import { icon } from './icons.js';
 import { playThumbSVG, playToSVG } from './renderer.js';
 import { FOLDER_COLORS } from './state.js';
 import { makeDropTarget, makeDraggablePlay } from './folder-picker.js';
+import { exportFolderJSON } from './folders-export.js';
 
 const NOMBRE_SECCION = 'Carpetas';
 
@@ -32,7 +33,7 @@ function miniatura(play) {
  * Monta la sección dentro de un contenedor a pantalla completa.
  * @param {{store:any, onClose?:Function, onEdit?:(id:string)=>void, mount:HTMLElement}} opts
  */
-export function createFoldersEditor({ store, mount, onClose, onEdit }) {
+export function createFoldersEditor({ store, mount, onClose, onEdit, onPrint }) {
   let seleccionada = null; // id de carpeta abierta
   let filtro = '';
   let unsubscribe = null;
@@ -81,6 +82,13 @@ export function createFoldersEditor({ store, mount, onClose, onEdit }) {
     html: `${icon('plus', { size: 15 })}<span>Añadir jugadas</span>`,
     onclick: () => añadirJugadas(),
   });
+  const btnExportar = h('button', {
+    class: 'btn fo-export',
+    type: 'button',
+    title: 'Exportar esta carpeta',
+    html: `${icon('download', { size: 15 })}<span>Exportar</span>`,
+    onclick: () => menuExportar(btnExportar),
+  });
   const btnBorrar = h('button', {
     class: 'btn fo-del',
     type: 'button',
@@ -97,7 +105,14 @@ export function createFoldersEditor({ store, mount, onClose, onEdit }) {
     h(
       'main',
       { class: 'fo-stage' },
-      h('div', { class: 'fo-stage-head' }, h('div', { class: 'fo-stage-titles' }, tituloEl, subEl), btnAñadir, btnBorrar),
+      h(
+        'div',
+        { class: 'fo-stage-head' },
+        h('div', { class: 'fo-stage-titles' }, tituloEl, subEl),
+        btnAñadir,
+        btnExportar,
+        btnBorrar
+      ),
       vacioEl,
       gridEl
     )
@@ -180,6 +195,7 @@ export function createFoldersEditor({ store, mount, onClose, onEdit }) {
     const carpeta = carpetas().find((f) => f.id === seleccionada) || null;
     const hayCarpetas = carpetas().length > 0;
     btnAñadir.hidden = !carpeta;
+    btnExportar.hidden = !carpeta;
     btnBorrar.hidden = !carpeta;
     gridEl.replaceChildren();
     vacioEl.replaceChildren();
@@ -285,6 +301,37 @@ export function createFoldersEditor({ store, mount, onClose, onEdit }) {
   }
 
   // ------------------------------------------------------------------ acciones
+  /** Menú de exportación de la carpeta abierta. */
+  function menuExportar(ancla) {
+    const carpeta = carpetas().find((x) => x.id === seleccionada);
+    if (!carpeta) return;
+    const dentro = store.getPlaysInFolder(carpeta.id);
+    if (!dentro.length) return toast('La carpeta está vacía', 'error');
+    import('./ui.js').then((ui) =>
+      ui.popupMenu(ancla, [
+        {
+          label: 'Muñequera / hoja (PDF)',
+          icon: 'printer',
+          hint: `${dentro.length}`,
+          onClick: () => onPrint?.(dentro, carpeta.name),
+        },
+        {
+          label: 'Imprimir hoja de jugadas',
+          icon: 'file',
+          onClick: () => onPrint?.(dentro, carpeta.name),
+        },
+        '-',
+        {
+          label: 'Exportar la carpeta (JSON)',
+          icon: 'download',
+          onClick: () => {
+            if (exportFolderJSON(store, carpeta.id)) toast(`«${carpeta.name}» exportada`);
+          },
+        },
+      ])
+    );
+  }
+
   async function nuevaCarpeta() {
     let color = FOLDER_COLORS[carpetas().length % FOLDER_COLORS.length];
     const nombre = await promptDialog({

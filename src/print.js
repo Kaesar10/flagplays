@@ -990,7 +990,7 @@ const MODAL_TEMPLATE = `
         <section class="pr-group" data-pr-when="wristband">
           <h3 class="pr-label">Jugadas por celda</h3>
           <div class="pr-seg" data-pr-field="playsPerCard" role="group" aria-label="Jugadas por celda"></div>
-          <p class="pr-hint">Una jugada por celda: cada recuadro lleva su diagrama y su nombre.</p>
+          
         </section>
 
         <section class="pr-group" data-pr-when="wristband">
@@ -1321,9 +1321,7 @@ export function openPrintDialog(input = {}, extra = {}) {
     if (fitWristband) {
       const layout = wristbandLayout(wristbandOpts());
       const cm = (mm) => (mm / 10).toFixed(1).replace('.', ',');
-      fitWristband.textContent =
-        `${layout.cols} × ${layout.rows} = ${layout.cardsPerPage} celdas por hoja · ` +
-        `cada una de ${cm(layout.cardW)} × ${cm(layout.cardH)} cm`;
+      fitWristband.textContent = `${layout.cardsPerPage} por hoja · ${cm(layout.cardW)} × ${cm(layout.cardH)} cm`;
     }
     if (fitGrid) {
       const layout = wristbandLayout(wristbandOpts());
@@ -1334,7 +1332,7 @@ export function openPrintDialog(input = {}, extra = {}) {
           `${cm(layout.cardW)} × ${cm(layout.cardH)} cm.`;
         fitGrid.classList.add('is-warning');
       } else {
-        fitGrid.textContent = `Cada celda mide ${cm(layout.cardW)} × ${cm(layout.cardH)} cm.`;
+        fitGrid.textContent = `${cm(layout.cardW)} × ${cm(layout.cardH)} cm`;
         fitGrid.classList.remove('is-warning');
       }
     }
