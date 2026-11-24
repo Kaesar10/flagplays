@@ -1,6 +1,10 @@
 // Iconos SVG inline (trazo, 24x24). Sin dependencias.
 const P = {
   /* --- iconos de sección (rellenos, para la barra y el menú) --- */
+  's-folder': {
+    fill: true,
+    d: '<path d="M3 7.4a3 3 0 0 1 3-3h3.6a2 2 0 0 1 1.5.7l1.1 1.4H18a3 3 0 0 1 3 3v6.1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z"/>',
+  },
   's-grid': {
     fill: true,
     d: '<rect x="3" y="3" width="7.6" height="7.6" rx="2.2"/><rect x="13.4" y="3" width="7.6" height="7.6" rx="2.2"/><rect x="3" y="13.4" width="7.6" height="7.6" rx="2.2"/><rect x="13.4" y="13.4" width="7.6" height="7.6" rx="2.2"/>',

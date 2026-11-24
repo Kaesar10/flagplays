@@ -15,6 +15,7 @@
   --sec-catalog: #a78bfa;
   --sec-tree: #ffb020;
   --sec-wrist: #ff6b9a;
+  --sec-folders: #5b8cff;
 
   /* Superficies de cristal */
   --glass: rgba(255, 255, 255, 0.045);
@@ -63,6 +64,14 @@ body[data-section='tree'] {
   --accent-dim: #cc8a10;
   --accent-grad: linear-gradient(140deg, #ffd27a, #e09a10);
   --accent-glow: rgba(255, 176, 32, 0.24);
+}
+body[data-section='folders'] {
+  --sec: var(--sec-folders);
+  --sec-halo: rgba(91, 140, 255, 0.16);
+  --accent: var(--sec-folders);
+  --accent-dim: #3f63c4;
+  --accent-grad: linear-gradient(140deg, #8fb0ff, #4f74e8);
+  --accent-glow: rgba(91, 140, 255, 0.26);
 }
 body[data-section='wrist'] {
   --sec: var(--sec-wrist);
@@ -148,6 +157,9 @@ body {
 #appNav .nav-tab[data-section='tree']::before {
   background: var(--sec-tree);
 }
+#appNav .nav-tab[data-section='folders']::before {
+  background: var(--sec-folders);
+}
 #appNav .nav-tab[data-section='wrist']::before {
   background: var(--sec-wrist);
 }
@@ -171,6 +183,11 @@ body {
   color: var(--sec-tree);
   background: rgba(255, 176, 32, 0.13);
   border-color: rgba(255, 176, 32, 0.4);
+}
+#appNav .nav-tab[data-section='folders'].is-active {
+  color: var(--sec-folders);
+  background: rgba(91, 140, 255, 0.14);
+  border-color: rgba(91, 140, 255, 0.42);
 }
 #appNav .nav-tab[data-section='wrist'].is-active {
   color: var(--sec-wrist);
@@ -426,6 +443,9 @@ body {
   .msheet-sec:nth-child(5) .msheet-sec-ic {
     color: var(--sec-wrist);
   }
+  .msheet-sec:nth-child(6) .msheet-sec-ic {
+    color: var(--sec-folders);
+  }
 }
 
 
@@ -616,10 +636,11 @@ body {
 .section-overlay {
   animation: sec-in 0.18s cubic-bezier(0.2, 0.7, 0.3, 1);
 }
-/* El campo aparece con un fundido al cambiar de jugada o de modo */
+/* El campo NO se anima: se repinta al seleccionar jugadores y cualquier
+   fundido se ve como un parpadeo negro. */
 .stage svg,
 #fieldSvg {
-  animation: field-in 0.2s ease-out;
+  animation: none;
 }
 
 /* Contador de jugadas: salta al cambiar */
@@ -674,8 +695,6 @@ body {
 /* Menos movimiento si el sistema lo pide */
 @media (prefers-reduced-motion: reduce) {
   .section-overlay,
-  .stage svg,
-  #fieldSvg,
   .sb-count.is-bump,
   .toast,
   #appNav .nav-tab.is-active,

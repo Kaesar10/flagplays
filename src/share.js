@@ -519,7 +519,12 @@ export function minifyPlaybook(playbook) {
   };
   const folders = (Array.isArray(playbook.folders) ? playbook.folders : [])
     .filter((f) => f && f.id && f.name)
-    .map((f) => [String(f.id), String(f.name), String(f.color || '#9ae63f')]);
+    .map((f) => [
+      String(f.id),
+      String(f.name),
+      String(f.color || '#b4f13f'),
+      (Array.isArray(f.playIds) ? f.playIds : []).map(String),
+    ]);
   if (folders.length) out.folders = folders;
   const roster = (Array.isArray(playbook.roster) ? playbook.roster : [])
     .filter((r) => r && r.name)
@@ -558,7 +563,9 @@ export function expandPlaybook(obj) {
     plays: obj.plays.map(expandPlay),
     folders: Array.isArray(obj.folders)
       ? obj.folders.map((f) =>
-          Array.isArray(f) ? { id: f[0], name: f[1], color: f[2] } : f
+          Array.isArray(f)
+            ? { id: f[0], name: f[1], color: f[2], playIds: Array.isArray(f[3]) ? f[3] : [] }
+            : f
         )
       : undefined,
     roster: Array.isArray(obj.roster)

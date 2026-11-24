@@ -22,6 +22,7 @@ const SECCIONES = [
   { id: 'routes', label: 'Rutas', icon: 's-routes' },
   { id: 'tree', label: 'Árbol', icon: 's-tree' },
   { id: 'wrist', label: 'Muñequeras', icon: 's-wrist' },
+  { id: 'folders', label: 'Carpetas', icon: 's-folder' },
 ];
 
 const ACCIONES = [

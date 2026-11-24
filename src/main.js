@@ -25,6 +25,7 @@ import { computePlayDuration, setActiveAppearance } from './renderer.js';
 import { openTreeEditor, isTreeEditorOpen, closeTreeEditor } from './trees.js';
 import { openRoutesEditor, isRoutesEditorOpen, closeRoutesEditor } from './routes-open.js';
 import { openCatalogEditor, isCatalogOpen, closeCatalogEditor } from './catalog-open.js';
+import { openFoldersEditor, isFoldersOpen, closeFoldersEditor } from './folders-open.js';
 import { initNative, isAndroidApp, isWindowsApp, shareText } from './native.js';
 import { ensureTermsAccepted, viewTerms, isAccepted, openTermsDialog } from './terms.js';
 import { openLegalDialog } from './legal-ui.js';
@@ -815,6 +816,7 @@ async function openSection(section) {
     case 'plays':
       closeCatalogEditor();
       closeRoutesEditor();
+      closeFoldersEditor();
       if (isTreeEditorOpen()) closeTreeEditor();
       setNavActive('plays');
       break;
@@ -858,6 +860,22 @@ async function openSection(section) {
     case 'wrist':
       setNavActive('wrist');
       openPrintSection();
+      break;
+    case 'folders':
+      closeCatalogEditor();
+      closeRoutesEditor();
+      if (isTreeEditorOpen()) closeTreeEditor();
+      setNavActive('folders');
+      await openFoldersEditor({
+        store,
+        onClose: () => setNavActive('plays'),
+        onEdit: (playId) => {
+          setNavActive('plays');
+          scheduleRender({ library: true, field: true, inspector: true });
+          if (playId) store.selectPlay(playId);
+        },
+      });
+      if (!isFoldersOpen()) setNavActive('plays');
       break;
     default:
       setNavActive('plays');
@@ -1242,4 +1260,4 @@ boot().catch((err) => {
 });
 
 // Exponer para depuración
-window.FlagPlays = { store, editor, library, inspector, playback, setMode, openAnalysis, openTreeEditor, openSection, terms: { ensureTermsAccepted, viewTerms, isAccepted, openTermsDialog } };
+window.FlagPlays = { store, editor, library, inspector, playback, setMode, openAnalysis, openTreeEditor, openSection, folders: { openFoldersEditor, isFoldersOpen }, terms: { ensureTermsAccepted, viewTerms, isAccepted, openTermsDialog } };

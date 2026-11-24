@@ -31,9 +31,26 @@ function loadPersisted() {
   }
 }
 
+/** Paleta de carpetas: se usa en la libreta y en el catálogo. */
+export const FOLDER_COLORS = ['#45d9e8', '#b4f13f', '#ffb020', '#a78bfa', '#ff6b9a', '#ff8a6a'];
+
 export function createStore() {
   const persisted = typeof localStorage !== 'undefined' ? loadPersisted() : null;
   const playbook = persisted?.playbook || seedPlaybook();
+  // Las libretas antiguas no tienen carpetas: se añade la lista vacía.
+  if (!Array.isArray(playbook.folders)) playbook.folders = [];
+  // Las carpetas antiguas no guardaban sus jugadas: se rellenan una vez.
+  for (const f of playbook.folders) {
+    if (!Array.isArray(f.playIds) || (f.playIds.length === 0 && !f.touched)) {
+      if (f.name === 'Ofensiva') {
+        f.playIds = playbook.plays.filter((p) => p.type !== 'defense').map((p) => p.id);
+      } else if (f.name === 'Defensiva') {
+        f.playIds = playbook.plays.filter((p) => p.type === 'defense').map((p) => p.id);
+      } else {
+        f.playIds = f.playIds || [];
+      }
+    }
+  }
   const state = {
     playbook,
     playId: persisted?.playId || playbook.plays[0]?.id || null,
@@ -225,6 +242,10 @@ export function createStore() {
       if (idx < 0) return;
       update((s) => {
         s.playbook.plays.splice(idx, 1);
+        // Ninguna carpeta debe quedarse con un id que ya no existe.
+        for (const f of s.playbook.folders || []) {
+          f.playIds = f.playIds.filter((x) => x !== id);
+        }
         if (s.playId === id) {
           s.playId = s.playbook.plays[Math.min(idx, s.playbook.plays.length - 1)]?.id || null;
           s.selection = { ids: [], editing: null };
@@ -236,6 +257,53 @@ export function createStore() {
         }
       }, { reason: 'plays' });
     },
+    // ---------- carpetas (colecciones propias de jugadas) ----------
+    renameFolder(id, name) {
+      const limpio = String(name || '').trim();
+      if (!limpio) return;
+      update((s) => {
+        const f = s.playbook.folders.find((x) => x.id === id);
+        if (f) f.name = limpio;
+      }, { reason: 'folders' });
+    },
+    setFolderColor(id, color) {
+      update((s) => {
+        const f = s.playbook.folders.find((x) => x.id === id);
+        if (f) f.color = color;
+      }, { reason: 'folders' });
+    },
+    addToFolder(folderId, playIds) {
+      const ids = Array.isArray(playIds) ? playIds : [playIds];
+      const validos = ids.filter((id) => state.playbook.plays.some((p) => p.id === id));
+      if (!validos.length) return 0;
+      let añadidas = 0;
+      update((s) => {
+        const f = s.playbook.folders.find((x) => x.id === folderId);
+        if (!f) return;
+        for (const id of validos) {
+          if (!f.playIds.includes(id)) {
+            f.playIds.push(id);
+            añadidas += 1;
+          }
+        }
+      }, { reason: 'folders' });
+      return añadidas;
+    },
+    removeFromFolder(folderId, playId) {
+      update((s) => {
+        const f = s.playbook.folders.find((x) => x.id === folderId);
+        if (f) f.playIds = f.playIds.filter((id) => id !== playId);
+      }, { reason: 'folders' });
+    },
+    reorderPlayInFolder(folderId, fromIndex, toIndex) {
+      update((s) => {
+        const f = s.playbook.folders.find((x) => x.id === folderId);
+        if (!f) return;
+        const [item] = f.playIds.splice(fromIndex, 1);
+        if (item) f.playIds.splice(Math.max(0, Math.min(f.playIds.length, toIndex)), 0, item);
+      }, { reason: 'folders' });
+    },
+
     reorderPlay(fromId, toIndex) {
       update((s) => {
         const from = s.playbook.plays.findIndex((p) => p.id === fromId);
@@ -400,8 +468,15 @@ export function createStore() {
         s.playbook.name = name;
       }, { reason: 'playbook' });
     },
-    addFolder(name) {
-      const f = { id: uid('f'), name, color: '#9ae63f' };
+    addFolder(name, color) {
+      const limpio = String(name || '').trim() || 'Carpeta';
+      const f = {
+        id: uid('f'),
+        name: uniqueFolderName(limpio),
+        color: color || FOLDER_COLORS[0],
+        playIds: [],
+        createdAt: Date.now(),
+      };
       update((s) => s.playbook.folders.push(f), { reason: 'folders' });
       return f;
     },
@@ -479,6 +554,16 @@ export function createStore() {
     },
   };
 
+
+  /** Nombre de carpeta sin repetir: «Plantilla», «Plantilla 2»… */
+  function uniqueFolderName(base) {
+    const existentes = new Set((state.playbook.folders || []).map((f) => f.name));
+    if (!existentes.has(base)) return base;
+    let n = 2;
+    while (existentes.has(`${base} ${n}`)) n += 1;
+    return `${base} ${n}`;
+  }
+
   function uniqueName(base) {
     const names = new Set(state.playbook.plays.map((p) => p.name));
     if (!names.has(base)) return base;
@@ -493,6 +578,21 @@ export function createStore() {
     getPlaybook: () => state.playbook,
     getAppearance: () => normalizeAppearance(state.playbook.appearance),
     getTrees: () => state.playbook.trees || [],
+    getFolders: () => state.playbook.folders || [],
+    getFolder(id) {
+      return (state.playbook.folders || []).find((f) => f.id === id) || null;
+    },
+    /** Jugadas de una carpeta, en su orden y sin ids huérfanos. */
+    getPlaysInFolder(id) {
+      const f = (state.playbook.folders || []).find((x) => x.id === id);
+      if (!f) return [];
+      const byId = new Map(state.playbook.plays.map((p) => [p.id, p]));
+      return f.playIds.map((pid) => byId.get(pid)).filter(Boolean);
+    },
+    /** Carpetas a las que pertenece una jugada. */
+    getFoldersOfPlay(playId) {
+      return (state.playbook.folders || []).filter((f) => f.playIds.includes(playId));
+    },
     getCustomRoutes: () => state.playbook.customRoutes || [],
     subscribe(fn) {
       subs.add(fn);

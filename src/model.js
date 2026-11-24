@@ -262,8 +262,8 @@ export function emptyPlaybook(name = 'Mi libreta') {
     version: 1,
     plays: [],
     folders: [
-      { id: 'f_off', name: 'Ofensiva', color: '#9ae63f' },
-      { id: 'f_def', name: 'Defensiva', color: '#ff7a5c' },
+      { id: 'f_off', name: 'Ofensiva', color: '#b4f13f', playIds: [] },
+      { id: 'f_def', name: 'Defensiva', color: '#ff8a6a', playIds: [] },
     ],
     roster: [],
     seeded: false,
@@ -280,9 +280,16 @@ export function normalizePlaybook(raw) {
   book.id = raw.id || book.id;
   book.plays = (Array.isArray(raw.plays) ? raw.plays : []).map((p) => normalizePlay(p));
   if (Array.isArray(raw.folders) && raw.folders.length) {
+    const validos = new Set(book.plays.map((p) => p.id));
     book.folders = raw.folders
       .filter((f) => f && f.id && f.name)
-      .map((f) => ({ id: f.id, name: String(f.name), color: f.color || '#9ae63f' }));
+      .map((f) => ({
+        id: f.id,
+        name: String(f.name),
+        color: f.color || '#b4f13f',
+        // Solo ids que existan en esta libreta: si no, la carpeta queda vacía.
+        playIds: (Array.isArray(f.playIds) ? f.playIds : []).filter((id) => validos.has(id)),
+      }));
   }
   book.roster = (Array.isArray(raw.roster) ? raw.roster : [])
     .filter((r) => r && r.name)

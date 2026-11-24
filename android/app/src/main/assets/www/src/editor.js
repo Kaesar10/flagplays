@@ -2,7 +2,8 @@
 import { fieldToPx, makeView, pxToField, clampToField, snapYard } from './field.js';
 import { playToSVG, computePlayDuration } from './renderer.js';
 import { createPlayer, ROLES } from './model.js';
-import { toast, popupMenu, escapeHTML } from './ui.js';
+import { toast, popupMenu, escapeHTML, promptDialog } from './ui.js';
+import { getRoute, ROUTES } from './presets.js';
 import { icon } from './icons.js';
 
 const SNAP_GRID = 0.5;
@@ -342,6 +343,86 @@ export function createEditor({ svg, stage, store, onSelectionChange }) {
     // Doble clic sobre una ruta ya dibujada -> nada por ahora
   }
 
+  /** Redondeo suave de coordenadas al aplicar rutas de la biblioteca. */
+  function r2(n) {
+    return Math.round(n * 100) / 100;
+  }
+
+  /** Aplica una ruta de la biblioteca (plantillas y propias) a un jugador. */
+  function aplicarRutaBiblioteca(playerId, routeId) {
+    const play = store.getPlay();
+    const player = play?.players.find((p) => p.id === playerId);
+    const route = getRoute(routeId);
+    if (!player || !route || !Array.isArray(route.points) || !route.points.length) {
+      return toast('Esa ruta no está disponible', 'error');
+    }
+    // Las rutas de la biblioteca son relativas al receptor.
+    const path = route.points.map((pt) => ({
+      x: r2(player.pos.x + Number(pt.x || 0)),
+      y: r2(player.pos.y + Number(pt.y || 0)),
+      ...(pt.curve ? { curve: pt.curve } : {}),
+    }));
+    store.actions.updatePlayer(playerId, { path, pathType: 'route' });
+    toast(`Ruta «${route.name}» aplicada`);
+  }
+
+  /** Espeja la ruta del jugador respecto a su posición (derecha ↔ izquierda). */
+  function espejarRutaJugador(playerId) {
+    const play = store.getPlay();
+    const player = play?.players.find((p) => p.id === playerId);
+    if (!player || !player.path?.length) return toast('Ese jugador no tiene ruta', 'error');
+    const path = player.path.map((pt) => ({ ...pt, x: r2(2 * player.pos.x - pt.x) }));
+    store.actions.updatePlayer(playerId, { path });
+  }
+
+  /** Cambia la etiqueta corta (X, Y, Z, R1, CB1…). */
+  async function cambiarEtiqueta(playerId) {
+    const play = store.getPlay();
+    const player = play?.players.find((p) => p.id === playerId);
+    if (!player) return;
+    const valor = await promptDialog({
+      title: 'Etiqueta del jugador',
+      label: 'Nombre corto en el campo',
+      value: player.label || '',
+      confirmText: 'Guardar',
+      maxLength: 6,
+    });
+    if (valor === null || valor === undefined) return;
+    const limpio = String(valor).trim().slice(0, 6);
+    if (!limpio) return;
+    store.actions.updatePlayer(playerId, { label: limpio });
+  }
+
+  /** Colores rápidos para el jugador seleccionado. */
+  function menuColorJugador(ancla, playerId) {
+    const colores = [
+      ['Lima', '#b4f13f'],
+      ['Cian', '#45d9e8'],
+      ['Violeta', '#a78bfa'],
+      ['Ámbar', '#ffb020'],
+      ['Rosa', '#ff6b9a'],
+      ['Rojo', '#ff6b5c'],
+      ['Blanco', '#f4f8f6'],
+      ['Equipo', null],
+    ];
+    popupMenu(
+      ancla,
+      colores.map(([nombre, color]) => ({
+        label: nombre,
+        hint: color || '',
+        onClick: () => {
+          const play = store.getPlay();
+          const player = play?.players.find((p) => p.id === playerId);
+          if (!player) return;
+          const estilo = { ...(player.style || {}) };
+          if (color) estilo.color = color;
+          else delete estilo.color;
+          store.actions.updatePlayer(playerId, { style: Object.keys(estilo).length ? estilo : null });
+        },
+      }))
+    );
+  }
+
   function onContextMenu(evt) {
     const target = evt.target.closest('[data-player-id]');
     if (!target) return;
@@ -352,19 +433,92 @@ export function createEditor({ svg, stage, store, onSelectionChange }) {
     if (!player) return;
     if (!store.state.selection.ids.includes(id)) selectPlayers([id]);
     const isOff = player.team === 'offense';
-    popupMenu(evt.target, [
+    const esObjetivo = play.ball?.targetId === id;
+    const tieneRuta = !!player.path?.length;
+    const esMotion = player.pathType === 'motion';
+
+    const items = [
       {
-        label: 'Dibujar ruta',
+        label: esMotion ? 'Seguir dibujando el motion' : tieneRuta ? 'Seguir dibujando la ruta' : 'Dibujar ruta',
         icon: 'route',
+        hint: 'R',
         onClick: () => {
+          store.actions.updatePlayer(id, { pathType: isOff ? 'route' : 'rush' });
           setTool('route');
           startDrawing(id);
         },
       },
+      isOff
+        ? {
+            label: 'Dibujar motion',
+            icon: 'flip',
+            hint: 'antes del snap',
+            onClick: () => {
+              store.actions.updatePlayer(id, { pathType: 'motion', path: null });
+              setTool('route');
+              startDrawing(id);
+              toast('Dibuja el movimiento previo al snap');
+            },
+          }
+        : null,
+      isOff
+        ? {
+            label: esObjetivo ? 'Quitar el pase' : 'Dibujar pase a este jugador',
+            icon: 'target',
+            checked: esObjetivo,
+            onClick: () => store.actions.setBall({ targetId: esObjetivo ? null : id }),
+          }
+        : null,
+      isOff
+        ? {
+            label: 'Ruta de la biblioteca…',
+            icon: 'layers',
+            onClick: () => {
+              const propias = store.getCustomRoutes?.() || [];
+              const filas = [
+                ...propias.map((r) => ({ label: r.name, hint: 'propia', onClick: () => aplicarRutaBiblioteca(id, r.id) })),
+                ...(propias.length ? ['-'] : []),
+                ...ROUTES.map((r) => ({ label: r.name, onClick: () => aplicarRutaBiblioteca(id, r.id) })),
+              ];
+              popupMenu(target, filas);
+            },
+          }
+        : null,
+      tieneRuta
+        ? {
+            label: 'Espejar ruta',
+            icon: 'flip',
+            onClick: () => espejarRutaJugador(id),
+          }
+        : null,
+      tieneRuta
+        ? {
+            label: 'Borrar ruta',
+            icon: 'x',
+            onClick: () => store.actions.updatePlayer(id, { path: null }),
+          }
+        : null,
+      '-',
+      isOff && player.role !== 'qb'
+        ? {
+            label: 'Marcar como QB',
+            icon: 'target',
+            onClick: () => {
+              const anteriores = store.getPlay().players.filter((p) => p.role === 'qb' && p.id !== id);
+              for (const p of anteriores) store.actions.updatePlayer(p.id, { role: 'wr', label: p.label === 'QB' ? 'X' : p.label });
+              store.actions.updatePlayer(id, { role: 'qb', label: 'QB' });
+            },
+          }
+        : null,
       {
-        label: 'Borrar ruta',
-        icon: 'x',
-        onClick: () => store.actions.updatePlayer(id, { path: null }),
+        label: 'Cambiar etiqueta…',
+        icon: 'edit',
+        onClick: () => cambiarEtiqueta(id),
+      },
+      {
+        label: 'Color del jugador…',
+        icon: 'palette',
+        onClick: () => menuColorJugador(target, id),
       },
       '-',
       {
@@ -373,25 +527,14 @@ export function createEditor({ svg, stage, store, onSelectionChange }) {
         onClick: () => duplicatePlayer(id),
       },
       ...(isOff
-        ? [
-            {
-              label: player.ballTarget ? 'Quitar como receptor del balón' : 'Lanzar el balón a este jugador',
-              icon: 'target',
-              checked: !!player.ballTarget,
-              onClick: () => {
-                const play2 = store.getPlay();
-                const isTarget = play2.ball?.targetId === id;
-                store.actions.setBall({ targetId: isTarget ? null : id });
-              },
-            },
-          ]
+        ? []
         : [
+            '-',
             {
               label: 'Asignar a receptor…',
               icon: 'target',
               onClick: () => startManAssign(id),
             },
-            '-',
             {
               label: 'Ruta de rush',
               onClick: () => store.actions.updatePlayer(id, { assignment: { type: 'rush', lane: 1 } }),
@@ -411,7 +554,9 @@ export function createEditor({ svg, stage, store, onSelectionChange }) {
         danger: true,
         onClick: () => store.actions.removePlayers([id]),
       },
-    ]);
+    ].filter(Boolean);
+
+    popupMenu(evt.target, items);
   }
 
   function startManAssign(defenderId) {
