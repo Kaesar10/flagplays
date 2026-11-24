@@ -35,7 +35,7 @@ servidos por un servidor estático de 40 líneas (`server.mjs`).
 `FlagPlays.exe` es una aplicación de escritorio **nativa**: se abre con doble clic, no
 necesita `node`, no arranca ningún servidor local y funciona **sin conexión a internet**.
 
-**Para pasar a los amigos:** `dist\Instalador-FlagPlays-1.0.exe` (2,4 MB). Doble clic,
+**Para pasar a los amigos:** `dist\Instalador-FlagPlays-1.1.0.exe` (2,4 MB). Doble clic,
 siguiente, instalar. **No pide administrador** (se instala por usuario en
 `%LOCALAPPDATA%\Programs\FlagPlays`), crea accesos en el escritorio y el menú Inicio,
 aparece en *Aplicaciones instaladas* con su desinstalador y **no borra las jugadas al

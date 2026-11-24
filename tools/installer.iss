@@ -1,11 +1,16 @@
 ; ============================================================================
 ;  Instalador de FlagPlays para Windows (Inno Setup 6)
-;  Genera dist\Instalador-FlagPlays-1.0.exe
+;  Genera dist\Instalador-FlagPlays-<versión>.exe
 ;  Instalación POR USUARIO (sin permisos de administrador).
 ; ============================================================================
 
 #define AppName        "FlagPlays"
-#define AppVersion     "1.0"
+#ifndef AppVersion
+  #define AppVersion   "1.1.0"
+#endif
+#ifndef AppVersionQuad
+  #define AppVersionQuad "1.1.0.0"
+#endif
 #define AppPublisher   "FlagPlays"
 #define AppExe         "FlagPlays.exe"
 #define AppId          "{{B7E4C1A2-9F3D-4C6E-8A15-2D7F90C3E8B4}}"
@@ -41,7 +46,7 @@ CloseApplications=yes
 RestartApplications=no
 LicenseFile=..\windows\LICENCIA.txt
 MinVersion=10.0
-VersionInfoVersion=1.0.0.0
+VersionInfoVersion={#AppVersionQuad}
 VersionInfoCompany={#AppPublisher}
 VersionInfoDescription=Instalador de {#AppName}
 VersionInfoProductName={#AppName}
