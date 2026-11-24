@@ -134,6 +134,9 @@
   accent-color: var(--accent, #b4f13f);
   flex: none;
 }
+.tr-detect-rutas {
+  background: rgba(69, 217, 232, 0.09);
+}
 .tr-detect[hidden] {
   display: none;
 }

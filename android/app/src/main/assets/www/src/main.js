@@ -768,6 +768,11 @@ function openPrintSection(opts = {}) {
 
 let calcoAbierto = false;
 
+/** Jugadores de la jugada actual (copia viva del store). */
+function colleccionJugadores() {
+  return store.getPlay()?.players || [];
+}
+
 /** Abre el asistente de calco y guarda la foto en la jugada actual. */
 async function calcarDesdeFoto() {
   if (calcoAbierto) return;
@@ -802,11 +807,44 @@ async function calcarDesdeFoto() {
           }
         }
       }
-      toast(
-        colocados
-          ? `Foto lista y ${colocados} jugador${colocados === 1 ? '' : 'es'} colocado${colocados === 1 ? '' : 's'}`
-          : 'Foto lista: repasa las rutas encima'
-      );
+      // Propone las rutas detectadas al jugador más cercano a su inicio.
+      let rutasAplicadas = 0;
+      if (Array.isArray(res.rutas) && res.rutas.length && colleccionJugadores().length) {
+        const view = editor.getView?.();
+        if (view) {
+          const rect = fieldRectPx(view);
+          const jugadores = colleccionJugadores();
+          for (const ruta of res.rutas) {
+            const yardas = puntosAYardas(ruta.puntos, { ancho: res.ancho, alto: res.alto }, rect, (px) => pxToField(px, view));
+            if (yardas.length < 2) continue;
+            const inicio = yardas[0];
+            let mejor = null;
+            let mejorDist = 4.5; // yardas de tolerancia
+            for (const p of jugadores) {
+              const d = Math.hypot(p.pos.x - inicio.x, p.pos.y - inicio.y);
+              if (d < mejorDist) {
+                mejorDist = d;
+                mejor = p;
+              }
+            }
+            if (!mejor) continue;
+            const r2 = (v) => Math.round(v * 2) / 2;
+            const camino = [{ ...mejor.pos }];
+            for (const pt of yardas.slice(1)) {
+              const previo = camino[camino.length - 1];
+              if (Math.hypot(pt.x - previo.x, pt.y - previo.y) < 0.4) continue;
+              camino.push({ x: r2(pt.x), y: r2(pt.y) });
+            }
+            if (camino.length < 2) continue;
+            store.actions.updatePlayer(mejor.id, { path: camino, pathType: 'route' });
+            rutasAplicadas += 1;
+          }
+        }
+      }
+      const resumen = [];
+      if (colocados) resumen.push(`${colocados} jugador${colocados === 1 ? '' : 'es'}`);
+      if (rutasAplicadas) resumen.push(`${rutasAplicadas} ruta${rutasAplicadas === 1 ? '' : 's'}`);
+      toast(resumen.length ? `Foto lista: ${resumen.join(' y ')} propuestos` : 'Foto lista: repasa las rutas encima');
     }
     editor.render();
   } catch (err) {

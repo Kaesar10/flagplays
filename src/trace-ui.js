@@ -6,7 +6,7 @@
 import { h, toast, modal } from './ui.js';
 import { icon } from './icons.js';
 import { orderCorners, quadArea, fitSize } from './trace-math.js';
-import { detectarFichas } from './trace-detect.js';
+import { detectarFichas, detectarRutas } from './trace-detect.js';
 
 const MAX_VISTA = 760; // tamaño máximo de la foto en pantalla
 export const SALIDA_ANCHO = 1000; // tamaño de la imagen deformada que se guarda
@@ -158,6 +158,8 @@ export function abrirCalco() {
     let opacidad = 45; // % de la foto de fondo
     let fichas = []; // jugadores detectados en la foto
     let colocarFichas = true;
+    let rutas = []; // rutas (líneas) detectadas
+    let aplicarRutas = true;
     const cuerpo = h('div', { class: 'tr' });
 
     modal({
@@ -249,10 +251,9 @@ export function abrirCalco() {
         try {
           const ctx = deformada.canvas.getContext('2d');
           const pixeles = ctx.getImageData(0, 0, deformada.canvas.width, deformada.canvas.height);
-          fichas = detectarFichas(
-            { data: pixeles.data, ancho: deformada.canvas.width, alto: deformada.canvas.height },
-            { minLado: 6, maxLado: 44 }
-          ).slice(0, 24);
+          const imagenDet = { data: pixeles.data, ancho: deformada.canvas.width, alto: deformada.canvas.height };
+          fichas = detectarFichas(imagenDet).slice(0, 24);
+          rutas = detectarRutas(imagenDet, fichas).slice(0, 12);
         } catch (err) {
           console.warn('[calco] detección', err);
         }
@@ -263,6 +264,9 @@ export function abrirCalco() {
           opacity: opacidad / 100,
           get fichas() {
             return colocarFichas ? fichas : [];
+          },
+          get rutas() {
+            return aplicarRutas ? rutas : [];
           },
         };
         pintarDeteccion();
@@ -315,6 +319,27 @@ export function abrirCalco() {
           h('span', { text: `${fichas.length} jugador${fichas.length === 1 ? '' : 'es'} detectado${fichas.length === 1 ? '' : 's'}: colocarlos en la jugada` })
         );
         avisoFichas.hidden = false;
+        pintarRutas();
+      };
+
+      const avisoRutas = h('label', { class: 'tr-detect tr-detect-rutas' });
+      const pintarRutas = () => {
+        avisoRutas.replaceChildren();
+        if (!rutas.length) {
+          avisoRutas.hidden = true;
+          return;
+        }
+        const check = h('input', { type: 'checkbox', checked: aplicarRutas });
+        check.addEventListener('change', () => {
+          aplicarRutas = check.checked;
+        });
+        avisoRutas.append(
+          check,
+          h('span', {
+            text: `${rutas.length} ruta${rutas.length === 1 ? '' : 's'} detectada${rutas.length === 1 ? '' : 's'}: proponerlas a los jugadores más cercanos`,
+          })
+        );
+        avisoRutas.hidden = false;
       };
 
       marco.addEventListener('pointerdown', (evt) => {
@@ -386,7 +411,8 @@ export function abrirCalco() {
           }),
           h('label', { class: 'tr-op-wrap' }, h('span', { text: 'Opacidad' }), controlOpacidad, textoOpacidad)
         ),
-        avisoFichas
+        avisoFichas,
+        avisoRutas
       );
       repintarPines();
     }
