@@ -2,7 +2,7 @@
 import { fieldToPx, makeView, pxToField, clampToField, snapYard } from './field.js';
 import { playToSVG, computePlayDuration } from './renderer.js';
 import { createPlayer, ROLES } from './model.js';
-import { toast, popupMenu, escapeHTML, promptDialog } from './ui.js';
+import { h, toast, popupMenu, escapeHTML, promptDialog } from './ui.js';
 import { getRoute, ROUTES } from './presets.js';
 import { icon } from './icons.js';
 
@@ -22,6 +22,16 @@ export function createEditor({ svg, stage, store, onSelectionChange }) {
   hint.className = 'draw-hint';
   hint.hidden = true;
   stage.append(hint);
+
+  // Barra contextual: las acciones de lo que tengas delante, sin buscarlas.
+  let selectedBall = false;
+  const ctxBar = document.createElement('div');
+  ctxBar.className = 'ctx-bar';
+  ctxBar.setAttribute('role', 'toolbar');
+  ctxBar.setAttribute('aria-label', 'Acciones del jugador');
+  ctxBar.hidden = true;
+  stage.append(ctxBar);
+  let ctxAnchor = null; // { x, y } en px del stage
 
   // ---------- tamaño ----------
   function measure() {
@@ -91,6 +101,7 @@ export function createEditor({ svg, stage, store, onSelectionChange }) {
     svg.innerHTML = html;
     svg.classList.toggle('tool-route', tool === 'route');
     renderOverlay();
+    updateContextBar();
   }
 
   function renderOverlay() {
@@ -126,6 +137,288 @@ export function createEditor({ svg, stage, store, onSelectionChange }) {
       );
     }
     ovl.innerHTML = out.join('');
+  }
+
+  /** Botón de la barra contextual. */
+  function ctxBtn({ label, icono, onClick, primary, danger, title }) {
+    return h('button', {
+      class: `ctx-btn${primary ? ' is-primary' : ''}${danger ? ' is-danger' : ''}`,
+      type: 'button',
+      title: title || label,
+      'aria-label': title || label,
+      html: `${icon(icono, { size: 15 })}<span>${escapeHTML(label)}</span>`,
+      onclick: onClick,
+    });
+  }
+
+  /** Receptor del pase: menú con los jugadores de ataque. */
+  function menuReceptor(anclaEl) {
+    const play = store.getPlay();
+    const actual = play.ball?.targetId || null;
+    const receptores = play.players.filter((p) => p.team === 'offense' && p.role !== 'qb');
+    popupMenu(anclaEl, [
+      ...receptores.map((p) => ({
+        label: `${p.label}${p.role === 'rb' ? ' (RB)' : ''}`,
+        checked: p.id === actual,
+        onClick: () => store.actions.setBall({ targetId: p.id }),
+      })),
+      '-',
+      {
+        label: 'Sin pase',
+        icon: 'x',
+        onClick: () => store.actions.setBall({ targetId: null }),
+      },
+    ]);
+  }
+
+  /** Momento del lanzamiento. */
+  function menuLanzamiento(anclaEl) {
+    const actual = Number(store.getPlay().ball?.releaseAt ?? 0.9);
+    popupMenu(
+      anclaEl,
+      [0.5, 0.9, 1.2, 1.5, 2, 2.5].map((t) => ({
+        label: `${t.toString().replace('.', ',')} s`,
+        checked: Math.abs(t - actual) < 0.01,
+        onClick: () => store.actions.setBall({ releaseAt: t }),
+      }))
+    );
+  }
+
+  /** Coloca la barra junto al jugador (o arriba si hay varios). */
+  function colocarBarra(ids) {
+    if (!view) return;
+    const play = store.getPlay();
+    const primero = play?.players.find((p) => p.id === ids[0]);
+    const r = stage.getBoundingClientRect();
+    const sr = svg.getBoundingClientRect();
+    if (!primero || ids.length !== 1) {
+      ctxAnchor = { x: Math.max(12, r.width / 2), y: 14, centrado: true };
+      return;
+    }
+    const px = fieldToPx(primero.pos, view);
+    const escala = sr.width / Math.max(1, size.w);
+    ctxAnchor = {
+      x: Math.min(Math.max(90, px.x * escala), r.width - 90),
+      y: Math.max(10, px.y * escala - 78),
+      centrado: true,
+    };
+  }
+
+  /** Vuelve a dibujar la barra contextual según lo que haya delante. */
+  function updateContextBar() {
+    const play = store.getPlay();
+    const ids = store.state.selection.ids || [];
+    ctxBar.replaceChildren();
+    if (!play) {
+      ctxBar.hidden = true;
+      return;
+    }
+
+    const cerrar = () => {
+      ctxBar.hidden = true;
+      selectedBall = false;
+    };
+
+    // --- dibujando una ruta o un motion
+    if (drawing) {
+      const player = play.players.find((p) => p.id === drawing.playerId);
+      ctxBar.classList.add('is-drawing');
+      ctxBar.append(
+        h('span', { class: 'ctx-tag', text: `${player?.label || ''} · ${player?.path?.length || 0} puntos` }),
+        ctxBtn({ label: 'Terminar', icono: 'check', primary: true, onClick: () => finishDrawing() }),
+        ctxBtn({ label: 'Deshacer punto', icono: 'undo', onClick: () => removeLastPoint() }),
+        ctxBtn({ label: 'Cancelar', icono: 'x', onClick: () => setTool('select') })
+      );
+      ctxBar.hidden = false;
+      colocarBarra([drawing.playerId]);
+      posicionarBarra();
+      return;
+    }
+
+    // --- el balón
+    if (selectedBall) {
+      const target = play.players.find((p) => p.id === play.ball?.targetId);
+      ctxBar.classList.remove('is-drawing');
+      ctxBar.append(
+        h('span', { class: 'ctx-tag', text: 'Pase' }),
+        ctxBtn({
+          label: target ? `Receptor: ${target.label}` : 'Elegir receptor',
+          icono: 'target',
+          primary: !target,
+          onClick: (e) => menuReceptor(e.currentTarget),
+        }),
+        ctxBtn({
+          label: `Sale a ${Number(play.ball?.releaseAt ?? 0.9).toString().replace('.', ',')} s`,
+          icono: 'timer',
+          onClick: (e) => menuLanzamiento(e.currentTarget),
+        }),
+        target
+          ? ctxBtn({ label: 'Quitar pase', icono: 'x', danger: true, onClick: () => store.actions.setBall({ targetId: null }) })
+          : null,
+        ctxBtn({ label: 'Cerrar', icono: 'x', onClick: cerrar })
+      );
+      ctxBar.hidden = false;
+      ctxAnchor = { x: Math.max(12, stage.getBoundingClientRect().width / 2), y: 14 };
+      posicionarBarra();
+      return;
+    }
+
+    // --- sin selección
+    if (!ids.length) {
+      ctxBar.hidden = true;
+      return;
+    }
+
+    const jugadores = play.players.filter((p) => ids.includes(p.id));
+    const uno = jugadores.length === 1 ? jugadores[0] : null;
+
+    // --- varios jugadores
+    if (!uno) {
+      ctxBar.classList.remove('is-drawing');
+      ctxBar.append(
+        h('span', { class: 'ctx-tag', text: `${jugadores.length} jugadores` }),
+        ctxBtn({ label: 'Mover', icono: 'cursor', primary: true, onClick: () => setTool('select') }),
+        ctxBtn({
+          label: 'Color',
+          icono: 'palette',
+          onClick: () => menuColorMultiple(jugadores.map((p) => p.id)),
+        }),
+        ctxBtn({
+          label: 'Duplicar',
+          icono: 'copy',
+          onClick: () => {
+            for (const p of jugadores) duplicatePlayer(p.id);
+          },
+        }),
+        ctxBtn({
+          label: 'Eliminar',
+          icono: 'trash',
+          danger: true,
+          onClick: () => store.actions.removePlayers(ids),
+        })
+      );
+      ctxBar.hidden = false;
+      colocarBarra(ids);
+      posicionarBarra();
+      return;
+    }
+
+    // --- un jugador
+    const esOff = uno.team === 'offense';
+    const esObjetivo = play.ball?.targetId === uno.id;
+    ctxBar.classList.remove('is-drawing');
+    ctxBar.append(
+      h('span', { class: 'ctx-tag', text: uno.label || (esOff ? 'Jugador' : 'Defensa') })
+    );
+    if (esOff) {
+      ctxBar.append(
+        ctxBtn({ label: 'Mover', icono: 'cursor', onClick: () => setTool('select') }),
+        ctxBtn({
+          label: uno.pathType === 'motion' && uno.path?.length ? 'Motion' : 'Ruta',
+          icono: 'route',
+          primary: !uno.path?.length,
+          onClick: () => {
+            store.actions.updatePlayer(uno.id, { pathType: 'route' });
+            setTool('route');
+            startDrawing(uno.id);
+          },
+        }),
+        ctxBtn({
+          label: 'Motion',
+          icono: 'redo',
+          title: 'Dibujar el movimiento antes del snap',
+          onClick: () => {
+            store.actions.updatePlayer(uno.id, { pathType: 'motion', path: null });
+            setTool('route');
+            startDrawing(uno.id);
+          },
+        }),
+        ctxBtn({
+          label: esObjetivo ? 'Pase ✓' : 'Pase',
+          icono: 'target',
+          title: esObjetivo ? 'Este jugador recibe el pase' : 'Hacer que reciba el pase',
+          onClick: () => store.actions.setBall({ targetId: esObjetivo ? null : uno.id }),
+        })
+      );
+      if (uno.path?.length) {
+        ctxBar.append(
+          ctxBtn({
+            label: 'Espejar',
+            icono: 'flip',
+            title: 'Voltear la ruta a la otra banda',
+            onClick: () => {
+              const pts = uno.path.map((pt) => ({ ...pt, x: Math.round((2 * uno.pos.x - pt.x) * 100) / 100 }));
+              store.actions.updatePlayer(uno.id, { path: pts });
+            },
+          })
+        );
+      }
+    } else {
+      ctxBar.append(
+        ctxBtn({ label: 'Mover', icono: 'cursor', onClick: () => setTool('select') }),
+        ctxBtn({
+          label: 'Cobertura',
+          icono: 'target',
+          onClick: (e) => {
+            const items = playerActionItems(uno.id, e.currentTarget) || [];
+            popupMenu(e.currentTarget, items.filter((it) => it === '-' || /receptor|rush|zona/i.test(it.label || '')));
+          },
+        })
+      );
+    }
+    ctxBar.append(
+      ctxBtn({
+        label: 'Más',
+        icono: 'more',
+        title: 'Todas las opciones del jugador',
+        onClick: (e) => {
+          const items = playerActionItems(uno.id, e.currentTarget);
+          if (items) popupMenu(e.currentTarget, items);
+        },
+      })
+    );
+    ctxBar.hidden = false;
+    colocarBarra(ids);
+    posicionarBarra();
+  }
+
+  /** Coloca la barra en píxeles dentro del escenario. */
+  function posicionarBarra() {
+    if (!ctxAnchor) return;
+    const ancho = ctxBar.offsetWidth || 0;
+    const left = ctxAnchor.centrado ? ctxAnchor.x - ancho / 2 : ctxAnchor.x;
+    ctxBar.style.left = `${Math.max(8, Math.min(left, stage.clientWidth - ancho - 8))}px`;
+    ctxBar.style.top = `${Math.max(8, ctxAnchor.y)}px`;
+  }
+
+  /** Color rápido para varias jugadas seleccionadas. */
+  function menuColorMultiple(ids) {
+    const colores = [
+      ['Lima', '#b4f13f'],
+      ['Cian', '#45d9e8'],
+      ['Violeta', '#a78bfa'],
+      ['Ámbar', '#ffb020'],
+      ['Rosa', '#ff6b9a'],
+      ['Blanco', '#f4f8f6'],
+      ['Equipo', null],
+    ];
+    popupMenu(
+      ctxBar.querySelector('.ctx-btn'),
+      colores.map(([nombre, color]) => ({
+        label: nombre,
+        onClick: () => {
+          for (const id of ids) {
+            const play = store.getPlay();
+            const player = play?.players.find((p) => p.id === id);
+            if (!player) continue;
+            const estilo = { ...(player.style || {}) };
+            if (color) estilo.color = color;
+            else delete estilo.color;
+            store.actions.updatePlayer(id, { style: Object.keys(estilo).length ? estilo : null });
+          }
+        },
+      }))
+    );
   }
 
   function updateHint() {
@@ -167,6 +460,26 @@ export function createEditor({ svg, stage, store, onSelectionChange }) {
     const target = evt.target.closest('[data-player-id]');
     const handle = evt.target.closest('[data-handle]');
     const isHandle = handle && handle.hasAttribute('data-handle');
+    const enBalon = !!evt.target.closest('[data-ball]');
+    const enRuta = evt.target.closest('[data-route-player]');
+    if (enRuta && !target) {
+      evt.preventDefault();
+      selectPlayers([enRuta.dataset.routePlayer]);
+      render();
+      return;
+    }
+
+    if (enBalon && !isHandle) {
+      evt.preventDefault();
+      selectedBall = true;
+      if (store.state.selection.ids.length) selectPlayers([]);
+      render();
+      return;
+    }
+    if (selectedBall && !target) {
+      selectedBall = false;
+      render();
+    }
 
     svg.focus?.();
 
@@ -423,15 +736,11 @@ export function createEditor({ svg, stage, store, onSelectionChange }) {
     );
   }
 
-  function onContextMenu(evt) {
-    const target = evt.target.closest('[data-player-id]');
-    if (!target) return;
-    evt.preventDefault();
-    const id = target.dataset.playerId;
+  /** Acciones disponibles para un jugador (menú y barra contextual). */
+  function playerActionItems(id, ancla) {
     const play = store.getPlay();
     const player = play?.players.find((p) => p.id === id);
-    if (!player) return;
-    if (!store.state.selection.ids.includes(id)) selectPlayers([id]);
+    if (!player) return null;
     const isOff = player.team === 'offense';
     const esObjetivo = play.ball?.targetId === id;
     const tieneRuta = !!player.path?.length;
@@ -480,7 +789,7 @@ export function createEditor({ svg, stage, store, onSelectionChange }) {
                 ...(propias.length ? ['-'] : []),
                 ...ROUTES.map((r) => ({ label: r.name, onClick: () => aplicarRutaBiblioteca(id, r.id) })),
               ];
-              popupMenu(target, filas);
+              popupMenu(ancla, filas);
             },
           }
         : null,
@@ -556,7 +865,17 @@ export function createEditor({ svg, stage, store, onSelectionChange }) {
       },
     ].filter(Boolean);
 
-    popupMenu(evt.target, items);
+    return items;
+  }
+
+  function onContextMenu(evt) {
+    const target = evt.target.closest('[data-player-id]');
+    if (!target) return;
+    evt.preventDefault();
+    const id = target.dataset.playerId;
+    if (!store.state.selection.ids.includes(id)) selectPlayers([id]);
+    const items = playerActionItems(id, target);
+    if (items) popupMenu(evt.target, items);
   }
 
   function startManAssign(defenderId) {
@@ -684,6 +1003,7 @@ export function createEditor({ svg, stage, store, onSelectionChange }) {
   // ---------- herramienta ----------
   function setTool(t) {
     tool = t;
+    selectedBall = false;
     if (t !== 'route') {
       drawing = null;
       preview = null;

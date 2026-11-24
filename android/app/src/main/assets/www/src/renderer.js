@@ -321,8 +321,9 @@ function routeLayer(play, view, th, opts) {
       dash = ' stroke-dasharray="6 4"';
     }
     const op = dim ? 0.45 : 1;
+    const pulsa = opts.mode === 'editor' ? ` data-route-player="${p.id}" style="cursor:pointer"` : '';
     out.push(
-      `<path d="${d}" fill="none" stroke="${color}" stroke-opacity="${op}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"${dash}/>`
+      `<path${pulsa} d="${d}" fill="none" stroke="${color}" stroke-opacity="${op}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"${dash}/>`
     );
     if (rs.arrows !== false) {
       const last = px[px.length - 1];
@@ -462,11 +463,15 @@ function ballLayer(play, view, th, opts) {
     const out = [];
     if (opts.mode === 'editor' && opts.showThrowLine) {
       out.push(
-        `<line x1="${n(qbPx.x)}" y1="${n(qbPx.y)}" x2="${n(targetPx.x)}" y2="${n(targetPx.y)}" stroke="${th.throwLine}" stroke-width="1.4" stroke-dasharray="3 4"/>`
+        `<line data-ball="1" x1="${n(qbPx.x)}" y1="${n(qbPx.y)}" x2="${n(targetPx.x)}" y2="${n(targetPx.y)}" stroke="${th.throwLine}" stroke-width="1.4" stroke-dasharray="3 4" style="pointer-events:stroke;cursor:pointer"/>`
       );
     }
+    const hit =
+      opts.mode === 'editor'
+        ? `<circle cx="${n(qbPx.x)}" cy="${n(qbPx.y)}" r="15" fill="transparent" style="pointer-events:all;cursor:pointer"/>`
+        : '';
     out.push(
-      `<ellipse cx="${n(qbPx.x)}" cy="${n(qbPx.y)}" rx="${n(bs)}" ry="${n(bs * 0.62)}" fill="${th.ball}" transform="rotate(-20 ${n(qbPx.x)} ${n(qbPx.y)})"/>`
+      `<g data-ball="1" style="cursor:pointer">${hit}<ellipse cx="${n(qbPx.x)}" cy="${n(qbPx.y)}" rx="${n(bs)}" ry="${n(bs * 0.62)}" fill="${th.ball}" transform="rotate(-20 ${n(qbPx.x)} ${n(qbPx.y)})"/></g>`
     );
     return out.join('');
   }

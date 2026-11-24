@@ -200,7 +200,7 @@ function announceSelection() {
 
 // ---------- barra de herramientas del campo ----------
 const TOOLS = [
-  { group: 'tool', id: 'select', label: 'Seleccionar', icon: 'cursor', hint: 'V' },
+  { group: 'tool', id: 'select', label: 'Mover', icon: 'cursor', hint: 'V' },
   { group: 'tool', id: 'route', label: 'Ruta', icon: 'route', hint: 'R' },
 ];
 
